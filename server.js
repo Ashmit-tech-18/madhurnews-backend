@@ -25,14 +25,26 @@ const { runGNewsAutoFetch } = require('./controllers/articleController');
 const app = express();
 
 // -----------------------------------------------------------------
-// --- YAHAN PAR CORS FIX ADD KIYA GAYA HAI ---
+// --- YAHAN PAR NAYA CORS FIX ADD KIYA GAYA HAI ---
 // -----------------------------------------------------------------
-// Purani line 'app.use(cors());' ko replace kiya gaya hai
+// Ab yeh live site aur localhost, dono ko allow karega
 
-// Sirf aapki Netlify site ko allow karein
+const allowedOrigins = [
+    'https://madhurnews.netlify.app', // Aapki live frontend site
+    'http://localhost:3000'          // Aapki local frontend site
+];
+
 const corsOptions = {
-    origin: 'https://madhurnews.netlify.app',
-    optionsSuccessStatus: 200 // Kuch browsers ke liye zaroori
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1) {
+            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+            return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    },
+    optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
@@ -53,7 +65,13 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/subscribers', subscriberRoutes);
 app.use('/api/contact', contactRoutes);
 
+
+// -----------------------------------------------------------------
+// --- YAHAN PAR PORT TYPO FIX KIYA GAYA HAI ---
+// -----------------------------------------------------------------
+// 'process.Dprocess' ko 'process.env' kar diya gaya hai
 const PORT = process.env.PORT || 5000;
+// -----------------------------------------------------------------
 
 // Connect to MongoDB and then start the server
 console.log('Connecting to MongoDB...');
