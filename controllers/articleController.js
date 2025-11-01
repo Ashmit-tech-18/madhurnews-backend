@@ -269,14 +269,21 @@ const fetchAndStoreNewsForCategory = async (category) => {
         const newsApiResponse = await axios.get(`https://gnews.io/api/v4/top-headlines`, { params: apiParams });
         const fetchedArticles = newsApiResponse.data.articles;
 
+        // ========= YAHAN SE FIX SHURU HAI =========
         for (const articleData of fetchedArticles) {
-            const existingArticle = await Article.findOne({ title_en: articleData.title });
             
+            // 1. Pehle slug banayein
+            const newSlug = createSlug(articleData.title);
+
+            // 2. Ab 'title_en' ki jagah 'slug' se check karein
+            const existingArticle = await Article.findOne({ slug: newSlug });
+            
+            // 3. Agar article (slug) nahin milta, tabhi save karein
             if (!existingArticle && articleData.image && articleData.description) {
                 
                 const newArticle = new Article({
                     title_en: articleData.title,
-                    slug: createSlug(articleData.title),
+                    slug: newSlug, // Pehle se banaya gaya slug use karein
                     summary_en: articleData.description,
                     content_en: articleData.description + ` <br><br><a href="${articleData.url}" target="_blank" rel="noopener noreferrer" style="color: #007bff; text-decoration: underline;">Read full story...</a>`,
                     
@@ -289,12 +296,16 @@ const fetchAndStoreNewsForCategory = async (category) => {
                     author: articleData.source.name || 'Madhur News',
                     createdAt: new Date(articleData.publishedAt),
                     sourceUrl: articleData.url,
-                    tags: [] // --- FIX: 'tags' ko khaali array se initialize karein ---
+                    tags: [] // 'tags' ko khaali array se initialize karein
                 });
                 await newArticle.save();
                 newArticlesCount++;
+            } else if (existingArticle) {
+                // Yeh log add karna achha hai, taaki aapko pata chale ki kitne duplicates skip hue
+                console.log(`[Auto-Fetch] Skipping duplicate article (slug exists): ${newSlug}`);
             }
         }
+        // ========= YAHAN PAR FIX KHATM HUA =========
         
         if (newArticlesCount > 0) {
             console.log(`[Auto-Fetch] Successfully saved ${newArticlesCount} new articles for ${category}.`);

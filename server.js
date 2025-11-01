@@ -24,8 +24,23 @@ const { runGNewsAutoFetch } = require('./controllers/articleController');
 
 const app = express();
 
+// -----------------------------------------------------------------
+// --- YAHAN PAR CORS FIX ADD KIYA GAYA HAI ---
+// -----------------------------------------------------------------
+// Purani line 'app.use(cors());' ko replace kiya gaya hai
+
+// Sirf aapki Netlify site ko allow karein
+const corsOptions = {
+    origin: 'https://madhurnews.netlify.app',
+    optionsSuccessStatus: 200 // Kuch browsers ke liye zaroori
+};
+
+app.use(cors(corsOptions));
+// -----------------------------------------------------------------
+// --- FIX KHATM HUA ---
+// -----------------------------------------------------------------
+
 // Middleware
-app.use(cors());
 app.use(express.json());
 
 // Serve static files
@@ -38,7 +53,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/subscribers', subscriberRoutes);
 app.use('/api/contact', contactRoutes);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.Dprocess.env.PORT || 5000;
 
 // Connect to MongoDB and then start the server
 console.log('Connecting to MongoDB...');
