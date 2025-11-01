@@ -4,7 +4,7 @@ const axios = require('axios'); // Axios ko import karein
 // Helper function to create a URL-friendly slug from a title
 const createSlug = (title) => {
     if (!title) return '';
-    return title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+    return title.toString().toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
 };
 
 // Helper to format title case
@@ -14,27 +14,47 @@ const formatTitle = (text = '') => {
 
 // @desc    Create a new article
 exports.createArticle = async (req, res) => {
-    // ... (aapka code waisa hi hai) ...
-    const { title, content, category, subcategory, featuredImage } = req.body;
-    const slug = createSlug(title);
+    
+    // --- FIX: 'tags' ko req.body se nikaalein ---
+    const { 
+        title_en, title_hi, 
+        summary_en, summary_hi, 
+        content_en, content_hi, 
+        category, subcategory, featuredImage, galleryImages,
+        tags // Naya field
+    } = req.body;
+
+    const slugTitle = title_en || title_hi;
+    if (!slugTitle || slugTitle.trim() === '') {
+         return res.status(400).json({ msg: 'At least one title (EN or HI) is required to create a slug.' });
+    }
+    
+    let slug = createSlug(slugTitle);
 
     try {
-        let article = await Article.findOne({ slug });
-        if (article) {
-            return res.status(400).json({ msg: 'Article with this title already exists' });
+        const articleExists = await Article.findOne({ slug });
+        if (articleExists) {
+            slug = `${slug}-${Date.now()}`;
         }
 
         const newArticle = new Article({
-            title,
-            slug,
-            content,
+            title_en: title_en || '',
+            title_hi: title_hi || '',
+            summary_en: summary_en || '',
+            summary_hi: summary_hi || '',
+            content_en: content_en || '',
+            content_hi: content_hi || '',
+            slug: slug,
             category,
             subcategory,
             featuredImage,
+            galleryImages: galleryImages || [],
+            tags: tags || [] // --- FIX: 'tags' ko yahan add karein ---
         });
 
-        article = await newArticle.save();
-        res.status(201).json(article);
+        const savedArticle = await newArticle.save();
+        res.status(201).json(savedArticle);
+
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
@@ -43,7 +63,6 @@ exports.createArticle = async (req, res) => {
 
 // @desc    Get all articles
 exports.getAllArticles = async (req, res) => {
-    // ... (aapka code waisa hi hai) ...
     try {
         const articles = await Article.find().sort({ createdAt: -1 });
         res.json(articles);
@@ -55,7 +74,6 @@ exports.getAllArticles = async (req, res) => {
 
 // @desc    Get single article by ID
 exports.getArticleById = async (req, res) => {
-    // ... (aapka code waisa hi hai) ...
     try {
         const article = await Article.findById(req.params.id);
         if (!article) {
@@ -70,7 +88,6 @@ exports.getArticleById = async (req, res) => {
 
 // @desc    Get single article by slug
 exports.getArticleBySlug = async (req, res) => {
-    // ... (aapka code waisa hi hai) ...
     try {
         const article = await Article.findOne({ slug: req.params.slug });
         if (!article) {
@@ -83,9 +100,8 @@ exports.getArticleBySlug = async (req, res) => {
     }
 };
 
-// --- GET ARTICLES BY CATEGORY (UPDATED FOR GNEWS.IO) ---
+// --- GET ARTICLES BY CATEGORY ---
 exports.getArticlesByCategory = async (req, res) => {
-    // ... (aapka code waisa hi hai) ...
     let query = {};
     try {
         const { category, subcategory } = req.params;
@@ -99,7 +115,7 @@ exports.getArticlesByCategory = async (req, res) => {
 
         let articles = await Article.find(query).sort({ createdAt: -1 }).limit(20);
 
-        if (articles.length === 0) {
+        if (articles.length === 0 && process.env.GNEWS_API_KEY) {
             console.log(`No articles in DB for ${category}, performing initial fetch...`);
             await fetchAndStoreNewsForCategory(category); 
             articles = await Article.find(query).sort({ createdAt: -1 }).limit(20);
@@ -121,41 +137,79 @@ exports.getArticlesByCategory = async (req, res) => {
 
 // --- SEARCH FUNCTION ---
 exports.searchArticles = async (req, res) => {
-    // ... (aapka code waisa hi hai) ...
     try {
         const searchQuery = req.query.q;
         if (!searchQuery) {
             return res.status(400).json({ msg: 'Search query is required' });
         }
+        
         const searchRegex = new RegExp(searchQuery, 'i');
+        
         const articles = await Article.find({
             $or: [
+                { title_en: { $regex: searchRegex } },
+                { title_hi: { $regex: searchRegex } },
+                { summary_en: { $regex: searchRegex } },
+                { summary_hi: { $regex: searchRegex } },
+                { content_en: { $regex: searchRegex } },
+                { content_hi: { $regex: searchRegex } },
                 { title: { $regex: searchRegex } },
-                { content: { $regex: searchRegex } }
+                { tags: { $regex: searchRegex } } // --- FIX: Search me 'tags' ko add karein ---
             ]
         })
         .sort({ createdAt: -1 })
         .limit(20);
-        res.json(articles);
+        
+        res.status(200).json(articles); 
+
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        console.error("Search API Error:", err.message);
+        res.status(200).json([]); 
     }
 };
 
 // --- UPDATE ARTICLE ---
 exports.updateArticle = async (req, res) => {
-    // ... (aapka code waisa hi hai) ...
-    const { title, content, category, subcategory, featuredImage } = req.body;
+    
+    // --- FIX: 'tags' ko req.body se nikaalein ---
+    const { 
+        title_en, title_hi, 
+        summary_en, summary_hi, 
+        content_en, content_hi, 
+        category, subcategory, featuredImage, galleryImages,
+        tags // Naya field
+    } = req.body;
+    
     const articleFields = {};
-    if (title) {
-        articleFields.title = title;
-        articleFields.slug = createSlug(title);
+
+    if (title_en || title_hi) {
+        const newSlugTitle = title_en || title_hi;
+        if (newSlugTitle) {
+            const newSlug = createSlug(newSlugTitle);
+            const existingArticle = await Article.findOne({ slug: newSlug, _id: { $ne: req.params.id } });
+            if (existingArticle) {
+                return res.status(400).json({ msg: 'An article with this title (slug) already exists. Please choose a different title.' });
+            }
+            articleFields.slug = newSlug;
+        }
+        if (title_en !== undefined) articleFields.title_en = title_en;
+        if (title_hi !== undefined) articleFields.title_hi = title_hi;
     }
-    if (content) articleFields.content = content;
+
+    if (summary_en !== undefined) articleFields.summary_en = summary_en;
+    if (summary_hi !== undefined) articleFields.summary_hi = summary_hi;
+    if (content_en !== undefined) articleFields.content_en = content_en;
+    if (content_hi !== undefined) articleFields.content_hi = content_hi;
     if (category) articleFields.category = category;
-    articleFields.subcategory = subcategory;
-    articleFields.featuredImage = featuredImage;
+    if (subcategory !== undefined) articleFields.subcategory = subcategory;
+    if (featuredImage !== undefined) articleFields.featuredImage = featuredImage;
+    if (galleryImages !== undefined) articleFields.galleryImages = galleryImages;
+
+    // --- FIX: 'tags' ko update object me add karein ---
+    if (tags !== undefined) {
+        articleFields.tags = tags;
+    }
+
     try {
         let article = await Article.findById(req.params.id);
         if (!article) {
@@ -175,7 +229,6 @@ exports.updateArticle = async (req, res) => {
 
 // --- DELETE ARTICLE ---
 exports.deleteArticle = async (req, res) => {
-    // ... (aapka code waisa hi hai) ...
     try {
         const article = await Article.findByIdAndDelete(req.params.id);
         if (!article) {
@@ -190,10 +243,9 @@ exports.deleteArticle = async (req, res) => {
 
 
 // -----------------------------------------------------------------
-// --- AUTO-FETCH LOGIC ---
+// --- AUTO-FETCH LOGIC (GNEWS) ---
 // -----------------------------------------------------------------
 const fetchAndStoreNewsForCategory = async (category) => {
-    // ... (aapka code waisa hi hai) ...
     let newArticlesCount = 0;
     try {
         const categoryForQuery = category.toLowerCase();
@@ -218,18 +270,26 @@ const fetchAndStoreNewsForCategory = async (category) => {
         const fetchedArticles = newsApiResponse.data.articles;
 
         for (const articleData of fetchedArticles) {
-            const existingArticle = await Article.findOne({ title: articleData.title });
+            const existingArticle = await Article.findOne({ title_en: articleData.title });
             
             if (!existingArticle && articleData.image && articleData.description) {
+                
                 const newArticle = new Article({
-                    title: articleData.title,
+                    title_en: articleData.title,
                     slug: createSlug(articleData.title),
-                    content: articleData.description + ` <br><br><a href="${articleData.url}" target="_blank" rel="noopener noreferrer" style="color: #007bff; text-decoration: underline;">Read full story...</a>`,
+                    summary_en: articleData.description,
+                    content_en: articleData.description + ` <br><br><a href="${articleData.url}" target="_blank" rel="noopener noreferrer" style="color: #007bff; text-decoration: underline;">Read full story...</a>`,
+                    
+                    title_hi: '',
+                    summary_hi: '',
+                    content_hi: '',
+                    
                     category: formatTitle(category),
                     featuredImage: articleData.image,
                     author: articleData.source.name || 'Madhur News',
                     createdAt: new Date(articleData.publishedAt),
-                    url: articleData.url 
+                    sourceUrl: articleData.url,
+                    tags: [] // --- FIX: 'tags' ko khaali array se initialize karein ---
                 });
                 await newArticle.save();
                 newArticlesCount++;
@@ -249,39 +309,27 @@ const fetchAndStoreNewsForCategory = async (category) => {
 };
 
 exports.runGNewsAutoFetch = async () => {
-    // ... (aapka code waisa hi hai) ...
     console.log(`[${new Date().toISOString()}] Running scheduled GNews auto-fetch job...`);
-    
-    const categoriesToFetch = [
-        'National', 'Business', 'Entertainment', 'Sports', 'World', 'Tech', 'Health', 'Science'
-    ];
-
-    let totalFetched = 0;
+    const categoriesToFetch = ['National', 'Business', 'Entertainment', 'Sports', 'World', 'Tech', 'Health', 'Science'];
     for (const category of categoriesToFetch) {
-        const count = await fetchAndStoreNewsForCategory(category);
-        if(count) totalFetched += count;
+        await fetchAndStoreNewsForCategory(category);
     }
-
     console.log(`[${new Date().toISOString()}] GNews fetch job complete.`);
 };
 
 
 // -----------------------------------------------------------------
-// --- FIX: SITEMAP GENERATOR FUNCTION ---
+// --- SITEMAP GENERATOR FUNCTION ---
 // -----------------------------------------------------------------
-
-// Yeh categories wahi hain jo aap auto-fetch kar rahe hain
 const staticCategories = [
-    'national', 'business', 'entertainment', 'sports', 'world', 'tech', 'health', 'science'
+    'national', 'business', 'entertainment', 'sports', 'world', 'tech', 'religion', 'health', 'science'
 ];
-// Yeh aapke static pages hain
 const staticPages = [
     '', 'about', 'contact', 'privacy-policy', 'terms-condition', 'subscribe'
 ];
 
 exports.generateSitemap = async (req, res) => {
     try {
-        // --- ZAROORI: .env se apna frontend URL lein ---
         const baseUrl = process.env.FRONTEND_URL;
         if (!baseUrl) {
             return res.status(500).send('Server Error: FRONTEND_URL is not defined in .env');
@@ -292,7 +340,6 @@ exports.generateSitemap = async (req, res) => {
         
         const today = new Date().toISOString();
 
-        // 1. Static Pages (Home, About, etc.) ko add karein
         staticPages.forEach(page => {
             xml += '<url>';
             xml += `<loc>${baseUrl}/${page}</loc>`;
@@ -301,7 +348,6 @@ exports.generateSitemap = async (req, res) => {
             xml += '</url>';
         });
         
-        // 2. Category Pages ko add karein
         staticCategories.forEach(category => {
             xml += '<url>';
             xml += `<loc>${baseUrl}/category/${category}</loc>`;
@@ -310,7 +356,6 @@ exports.generateSitemap = async (req, res) => {
             xml += '</url>';
         });
 
-        // 3. Database se sabhi Articles ko add karein
         const articles = await Article.find().select('slug createdAt').sort({ createdAt: -1 });
 
         articles.forEach(article => {
@@ -323,7 +368,6 @@ exports.generateSitemap = async (req, res) => {
 
         xml += '</urlset>';
         
-        // Header ko XML set karein aur sitemap bhein
         res.header('Content-Type', 'application/xml');
         res.send(xml);
 
@@ -332,4 +376,3 @@ exports.generateSitemap = async (req, res) => {
         res.status(500).send('Server Error');
     }
 };
-// --- END OF FIX ---

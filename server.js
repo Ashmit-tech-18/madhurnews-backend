@@ -28,16 +28,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Serve static files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // --- Sabhi routes ko yahan use karein ---
 app.use('/api/auth', authRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/subscribers', subscriberRoutes);
 app.use('/api/contact', contactRoutes);
-
-// Serve static files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
 
 const PORT = process.env.PORT || 5000;
 

@@ -5,7 +5,11 @@ const path = require('path');
 
 // Set storage engine
 const storage = multer.diskStorage({
-  destination: './uploads/',
+  // --- FIX 1: 'destination' के लिए एक 'absolute' पाथ का इस्तेमाल करें ---
+  // यह 'routes' फोल्डर से एक लेवल ऊपर (..) जाकर 'uploads' फोल्डर को ढूँढता है।
+  // यह 100% रिलाएबल है।
+  destination: path.join(__dirname, '..', 'uploads'),
+  
   filename: function (req, file, cb) {
     cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
   },
@@ -44,10 +48,14 @@ router.post('/', (req, res) => {
       if (req.file == undefined) {
         res.status(400).json({ msg: 'Error: No File Selected!' });
       } else {
+        
+        // --- FIX 2: filePath से शुरूआती स्लैश (/) हटा दें ---
+        // अब यह "uploads/image.png" सेव करेगा, जो बिल्कुल सही है।
         res.status(200).json({
           msg: 'File Uploaded!',
-          filePath: `/uploads/${req.file.filename}`,
+          filePath: `uploads/${req.file.filename}`,
         });
+        
       }
     }
   });
