@@ -1,4 +1,4 @@
-// File: backend/server.js (FIXED: 502 Error and CORS updated to News Chakra)
+// File: backend/server.js (FIXED: CORS Error for netlify.app)
 
 const dotenv = require('dotenv');
 const express = require('express');
@@ -20,11 +20,12 @@ const { runGNewsAutoFetch } = require('./controllers/articleController');
 const app = express();
 
 // -----------------------------------------------------------------
-// --- !!! FIX 1: CORS ko "newschakra" ke liye update kiya gaya hai !!! ---
+// --- !!! FIX: CORS ko "newschakra.netlify.app" ke liye update kiya gaya hai !!! ---
 // -----------------------------------------------------------------
 const allowedOrigins = [
-    'newschakra.netlify.app', // Aapki nayi live frontend site
-    'http://localhost:3000'    // Aapki local frontend site
+    'https://newschakra.live',       // Aapka custom domain
+    'https://newschakra.netlify.app', // Aapka Netlify domain (Yeh naya hai)
+    'http://localhost:3000'         // Aapki local frontend site
 ];
 
 const corsOptions = {
@@ -47,8 +48,6 @@ app.use(cors(corsOptions));
 // Middleware
 app.use(express.json());
 
-// (Purana '/uploads' route hata diya gaya hai kyunki ab Cloudinary istemal ho raha hai)
-
 // --- Sabhi routes ko yahan use karein ---
 app.use('/api/auth', authRoutes);
 app.use('/api/articles', articleRoutes);
@@ -56,7 +55,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/subscribers', subscriberRoutes);
 app.use('/api/contact', contactRoutes);
 
-// PORT (waisa hi hai)
+// PORT
 const PORT = process.env.PORT || 5000;
 
 // Connect to MongoDB and then start the server
@@ -69,18 +68,13 @@ mongoose.connect(process.env.MONGO_URI)
     
     console.log('Setting up GNews auto-fetch job...');
     
-    // '0 * * * *' ka matlab hai "har ghante ke 0th minute par"
     cron.schedule('0 * * * *', () => {
         runGNewsAutoFetch();
     });
 
-    // -----------------------------------------------------------------
-    // --- !!! FIX 2: 502 Bad Gateway Error ko rokne ke liye ise comment out kiya gaya hai !!! ---
-    // -----------------------------------------------------------------
-    // (Jab GNews API ki limit reset ho jayegi, tab aap ise wapas chalu kar sakte hain)
+    // (Initial fetch abhi bhi disabled hai taki 502 error na aaye)
     // console.log('Running initial GNews fetch on server start...');
-    // runGNewsAutoFetch(); // <-- Yahi crash kar raha tha
-    // ----------------------------------------------------
+    // runGNewsAutoFetch(); 
 
 })
 .catch(err => {
