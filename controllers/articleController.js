@@ -1,10 +1,26 @@
-// File: backend/controllers/articleController.js (FIXED: Removed 'tags' from GNews fetch)
+// File: backend/controllers/articleController.js (FIXED: createSlug is not defined)
 
 const Article = require('../models/Article');
 const axios = require('axios');
 
-// ... (baki ke functions jaise createSlug, formatTitle, createArticle, etc. waise hi rahenge) ...
-// ... (createArticle) ...
+// ---
+// --- !!! FIX: Helper functions ko wapas add kiya gaya hai !!! ---
+// ---
+
+// Helper function to create a URL-friendly slug from a title
+const createSlug = (title) => {
+    if (!title) return '';
+    return title.toString().toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+};
+
+// Helper to format title case
+const formatTitle = (text = '') => {
+    return text.replace(/\b\w/g, char => char.toUpperCase());
+};
+// --- END OF FIX ---
+
+
+// @desc    Create a new article
 exports.createArticle = async (req, res) => {
     
     const { 
@@ -22,12 +38,13 @@ exports.createArticle = async (req, res) => {
         thumbnailCaption
     } = req.body;
 
+    // Ab 'createSlug' define ho chuka hai
     const slugTitle = urlHeadline || longHeadline || title_en || title_hi;
     if (!slugTitle || slugTitle.trim() === '') {
          return res.status(400).json({ msg: 'At least one title (URL, Long, EN, or HI) is required to create a slug.' });
     }
     
-    let slug = createSlug(slugTitle);
+    let slug = createSlug(slugTitle); // Yeh line ab kaam karegi
 
     try {
         const articleExists = await Article.findOne({ slug });
@@ -52,7 +69,7 @@ exports.createArticle = async (req, res) => {
             longHeadline: longHeadline || '',
             kicker: kicker || '',
             keywords: keywords || [],
-            author: author || 'Madhur News', // Ise baad me 'News Chakra' kar sakte hain
+            author: author || 'News Chakra', // Naam update kar diya
             sourceUrl: sourceUrl || '',
             thumbnailCaption: thumbnailCaption || ''
         });
@@ -66,7 +83,7 @@ exports.createArticle = async (req, res) => {
     }
 };
 
-// ... (getAllArticles) ...
+// @desc    Get all articles
 exports.getAllArticles = async (req, res) => {
     try {
         const articles = await Article.find().sort({ createdAt: -1 });
@@ -77,7 +94,7 @@ exports.getAllArticles = async (req, res) => {
     }
 };
 
-// ... (getArticleById) ...
+// @desc    Get single article by ID
 exports.getArticleById = async (req, res) => {
     try {
         const article = await Article.findById(req.params.id);
@@ -91,7 +108,7 @@ exports.getArticleById = async (req, res) => {
     }
 };
 
-// ... (getArticleBySlug) ...
+// @desc    Get single article by slug
 exports.getArticleBySlug = async (req, res) => {
     try {
         const article = await Article.findOne({ slug: req.params.slug });
@@ -105,7 +122,7 @@ exports.getArticleBySlug = async (req, res) => {
     }
 };
 
-// ... (getArticlesByCategory) ...
+// --- GET ARTICLES BY CATEGORY ---
 exports.getArticlesByCategory = async (req, res) => {
     let query = {};
     try {
@@ -143,7 +160,7 @@ exports.getArticlesByCategory = async (req, res) => {
     }
 };
 
-// ... (searchArticles) ...
+// --- SEARCH FUNCTION ---
 exports.searchArticles = async (req, res) => {
     try {
         const searchQuery = req.query.q;
@@ -178,7 +195,7 @@ exports.searchArticles = async (req, res) => {
     }
 };
 
-// ... (updateArticle) ...
+// --- UPDATE ARTICLE ---
 exports.updateArticle = async (req, res) => {
     
     const { 
@@ -200,7 +217,7 @@ exports.updateArticle = async (req, res) => {
 
     const newSlugTitle = urlHeadline || longHeadline || title_en || title_hi;
     if (newSlugTitle) {
-        const newSlug = createSlug(newSlugTitle);
+        const newSlug = createSlug(newSlugTitle); // Yeh line ab kaam karegi
         const existingArticle = await Article.findOne({ slug: newSlug, _id: { $ne: req.params.id } });
         if (existingArticle) {
             return res.status(400).json({ msg: 'An article with this title (slug) already exists. Please choose a different title.' });
@@ -246,7 +263,7 @@ exports.updateArticle = async (req, res) => {
     }
 };
 
-// ... (deleteArticle) ...
+// --- DELETE ARTICLE ---
 exports.deleteArticle = async (req, res) => {
     try {
         const article = await Article.findByIdAndDelete(req.params.id);
@@ -263,7 +280,6 @@ exports.deleteArticle = async (req, res) => {
 
 // -----------------------------------------------------------------
 // --- AUTO-FETCH LOGIC (GNEWS) ---
-// --- UPDATED: 'tags' REMOVED ---
 // -----------------------------------------------------------------
 const fetchAndStoreNewsForCategory = async (category) => {
     let newArticlesCount = 0;
@@ -291,7 +307,7 @@ const fetchAndStoreNewsForCategory = async (category) => {
 
         for (const articleData of fetchedArticles) {
             
-            const newSlug = createSlug(articleData.title);
+            const newSlug = createSlug(articleData.title); // Yeh line ab kaam karegi
             const existingArticle = await Article.findOne({ slug: newSlug });
             
             if (!existingArticle && articleData.image && articleData.description) {
@@ -311,11 +327,9 @@ const fetchAndStoreNewsForCategory = async (category) => {
                     keywords: [], 
                     
                     slug: newSlug,
-                    category: formatTitle(category),
-                    author: articleData.source.name || 'Madhur News', // Ise baad me 'News Chakra' kar sakte hain
+                    category: formatTitle(category), // Yeh line ab kaam karegi
+                    author: articleData.source.name || 'News Chakra', // Naam update kar diya
                     sourceUrl: articleData.url,
-                    
-                    // --- FIX: 'tags: []' YAHAN SE HATA DIYA GAYA HAI ---
                     
                     featuredImage: articleData.image,
                     thumbnailCaption: '',
