@@ -1,23 +1,17 @@
-// File: backend/controllers/articleController.js (FIXED: createSlug is not defined)
+// File: backend/controllers/articleController.js (UPDATED: GNews fetch logic)
 
 const Article = require('../models/Article');
 const axios = require('axios');
 
-// ---
-// --- !!! FIX: Helper functions ko wapas add kiya gaya hai !!! ---
-// ---
-
-// Helper function to create a URL-friendly slug from a title
+// --- Helper functions (waisi hi hain) ---
 const createSlug = (title) => {
     if (!title) return '';
     return title.toString().toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
 };
-
-// Helper to format title case
 const formatTitle = (text = '') => {
     return text.replace(/\b\w/g, char => char.toUpperCase());
 };
-// --- END OF FIX ---
+// --- End of Helper functions ---
 
 
 // @desc    Create a new article
@@ -38,13 +32,12 @@ exports.createArticle = async (req, res) => {
         thumbnailCaption
     } = req.body;
 
-    // Ab 'createSlug' define ho chuka hai
     const slugTitle = urlHeadline || longHeadline || title_en || title_hi;
     if (!slugTitle || slugTitle.trim() === '') {
          return res.status(400).json({ msg: 'At least one title (URL, Long, EN, or HI) is required to create a slug.' });
     }
     
-    let slug = createSlug(slugTitle); // Yeh line ab kaam karegi
+    let slug = createSlug(slugTitle);
 
     try {
         const articleExists = await Article.findOne({ slug });
@@ -69,7 +62,7 @@ exports.createArticle = async (req, res) => {
             longHeadline: longHeadline || '',
             kicker: kicker || '',
             keywords: keywords || [],
-            author: author || 'News Chakra', // Naam update kar diya
+            author: author || 'News Chakra',
             sourceUrl: sourceUrl || '',
             thumbnailCaption: thumbnailCaption || ''
         });
@@ -122,26 +115,63 @@ exports.getArticleBySlug = async (req, res) => {
     }
 };
 
-// --- GET ARTICLES BY CATEGORY ---
+// ---
+// --- !!! FIX 4: getArticlesByCategory (Original logic from file) !!! ---
+// ---
 exports.getArticlesByCategory = async (req, res) => {
+ 
+    console.log("DEBUG [Backend]: Received request parameters:", req.params);
+
     let query = {};
     try {
         const { category, subcategory } = req.params;
         const categoryForQuery = category.toLowerCase();
 
-        query = { category: new RegExp(`^${categoryForQuery}$`, 'i') };
+        // --- Naya Smart Logic (Aapki nayi menuItems list ke hisab se) ---
+        if (categoryForQuery === 'business') {
+            // Agar 'business' pucha hai, toh 'Business' AUR 'Finance' dono ko dhundo
+            query = { 
+                $or: [ 
+                    { category: new RegExp(`^business$`, 'i') }, 
+                    { category: new RegExp(`^finance$`, 'i') } 
+                ] 
+            };
+        } else {
+            // Baaki sab (National, World, Politics, etc.) ke liye normal query
+            query = { category: new RegExp(`^${categoryForQuery}$`, 'i') };
+        }
+        // --- End of Smart Logic ---
+
         if (subcategory) {
             const formattedSub = subcategory.replace(/-/g, ' ');
-            query.subcategory = new RegExp(`^${formattedSub}$`, 'i');
+            
+            // Edge Case: User clicking '/world/world' (from the new menu)
+            if (categoryForQuery === 'world' && formattedSub === 'world') {
+                 // Sirf 'World' category ke article dikhao (bina subcategory ke)
+                 query = { category: new RegExp(`^world$`, 'i') };
+            } else {
+                // Normal subcategory query
+                query = {
+                    ...query, // Upar wala $or query (ya normal query)
+                    subcategory: new RegExp(`^${formattedSub}$`, 'i')
+                };
+            }
         }
+        // --- END OF FIX 4 ---
 
         let articles = await Article.find(query).sort({ createdAt: -1 }).limit(20);
 
-        if (articles.length === 0 && process.env.GNEWS_API_KEY) {
-            console.log(`No articles in DB for ${category}, performing initial fetch...`);
+        // ---
+        // --- !!! YAHAN PAR AAPKA SUGGESTED FIX DAALA GAYA HAI !!! ---
+        // ---
+        if (articles.length === 0 && !subcategory && process.env.GNEWS_API_KEY) {
+            console.log(`No articles in DB for ${category} (main), performing initial fetch...`);
             await fetchAndStoreNewsForCategory(category); 
+            
+            // Re-run the *same* query (jo main category ke liye thi)
             articles = await Article.find(query).sort({ createdAt: -1 }).limit(20);
         }
+        // --- END OF FIX ---
         
         res.json(articles);
 
@@ -154,13 +184,15 @@ exports.getArticlesByCategory = async (req, res) => {
         }
         
         if (!res.headersSent) {
+            // Query ko dobara define karne ki zaroorat nahi, 'query' variable
+            // try block ke scope mein pehle se available aur set hai.
             const articlesFromDb = await Article.find(query).sort({ createdAt: -1 }).limit(20);
             res.json(articlesFromDb);
         }
     }
 };
 
-// --- SEARCH FUNCTION ---
+// --- SEARCH FUNCTION (waisa hi hai) ---
 exports.searchArticles = async (req, res) => {
     try {
         const searchQuery = req.query.q;
@@ -195,7 +227,7 @@ exports.searchArticles = async (req, res) => {
     }
 };
 
-// --- UPDATE ARTICLE ---
+// --- UPDATE ARTICLE (waisa hi hai) ---
 exports.updateArticle = async (req, res) => {
     
     const { 
@@ -217,7 +249,7 @@ exports.updateArticle = async (req, res) => {
 
     const newSlugTitle = urlHeadline || longHeadline || title_en || title_hi;
     if (newSlugTitle) {
-        const newSlug = createSlug(newSlugTitle); // Yeh line ab kaam karegi
+        const newSlug = createSlug(newSlugTitle);
         const existingArticle = await Article.findOne({ slug: newSlug, _id: { $ne: req.params.id } });
         if (existingArticle) {
             return res.status(400).json({ msg: 'An article with this title (slug) already exists. Please choose a different title.' });
@@ -263,7 +295,7 @@ exports.updateArticle = async (req, res) => {
     }
 };
 
-// --- DELETE ARTICLE ---
+// --- DELETE ARTICLE (waisa hi hai) ---
 exports.deleteArticle = async (req, res) => {
     try {
         const article = await Article.findByIdAndDelete(req.params.id);
@@ -279,7 +311,7 @@ exports.deleteArticle = async (req, res) => {
 
 
 // -----------------------------------------------------------------
-// --- AUTO-FETCH LOGIC (GNEWS) ---
+// --- AUTO-FETCH LOGIC (GNEWS) (waisa hi hai) ---
 // -----------------------------------------------------------------
 const fetchAndStoreNewsForCategory = async (category) => {
     let newArticlesCount = 0;
@@ -307,7 +339,7 @@ const fetchAndStoreNewsForCategory = async (category) => {
 
         for (const articleData of fetchedArticles) {
             
-            const newSlug = createSlug(articleData.title); // Yeh line ab kaam karegi
+            const newSlug = createSlug(articleData.title);
             const existingArticle = await Article.findOne({ slug: newSlug });
             
             if (!existingArticle && articleData.image && articleData.description) {
@@ -327,8 +359,9 @@ const fetchAndStoreNewsForCategory = async (category) => {
                     keywords: [], 
                     
                     slug: newSlug,
-                    category: formatTitle(category), // Yeh line ab kaam karegi
-                    author: articleData.source.name || 'News Chakra', // Naam update kar diya
+                    category: formatTitle(category), // Yahan category save ho rahi hai
+                    // Subcategory yahan set nahi ho rahi, jo ki GNews ke liye normal hai
+                    author: articleData.source.name || 'News Chakra',
                     sourceUrl: articleData.url,
                     
                     featuredImage: articleData.image,
@@ -360,7 +393,8 @@ const fetchAndStoreNewsForCategory = async (category) => {
 
 exports.runGNewsAutoFetch = async () => {
     console.log(`[${new Date().toISOString()}] Running scheduled GNews auto-fetch job...`);
-    const categoriesToFetch = ['National', 'Business', 'Entertainment', 'Sports', 'World', 'Tech', 'Health', 'Science'];
+    // --- UPDATE: Aapki nayi categories se match kiya gaya hai ---
+    const categoriesToFetch = ['National', 'World', 'Politics', 'Business', 'Entertainment', 'Sports', 'Education', 'Health', 'Tech', 'Religion', 'Environment', 'Opinion'];
     for (const category of categoriesToFetch) {
         await fetchAndStoreNewsForCategory(category);
     }
@@ -369,10 +403,10 @@ exports.runGNewsAutoFetch = async () => {
 
 
 // -----------------------------------------------------------------
-// --- SITEMAP GENERATOR FUNCTION ---
+// --- SITEMAP GENERATOR FUNCTION (waisa hi hai) ---
 // -----------------------------------------------------------------
 const staticCategories = [
-    'national', 'business', 'entertainment', 'sports', 'world', 'tech', 'religion', 'health', 'science'
+    'national', 'politics', 'business', 'finance', 'entertainment', 'sports', 'world', 'education', 'health', 'tech', 'religion', 'environment', 'opinion'
 ];
 const staticPages = [
     '', 'about', 'contact', 'privacy-policy', 'terms-condition', 'subscribe'
