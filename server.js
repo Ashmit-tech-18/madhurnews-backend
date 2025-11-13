@@ -3,10 +3,10 @@
 const dotenv = require('dotenv');
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
 const mongoose = require('mongoose');
 const cron = require('node-cron'); 
-const fs = require('fs').promises;
+// const path = require('path'); // Ab iski zaroorat nahi
+// const fs = require('fs').promises; // Iski bhi zaroorat nahi
 
 dotenv.config();
 
@@ -58,36 +58,29 @@ cron.schedule('0 * * * *', () => {
     runGNewsAutoFetch();
 });
 
-// --- Serve Static Files ---
-const buildPath = path.join(__dirname, '../frontend/build');
-app.use(express.static(buildPath, { index: false })); 
-
 // ============================================================
-// 🔥 NEW: MAGIC ROUTE FOR SOCIAL SHARING (WhatsApp/FB)
+// 🔥 MAGIC ROUTE FOR SOCIAL SHARING (WhatsApp/FB)
 // ============================================================
+// Ye bina kisi file ke HTML generate karega, isliye ye CRASH NAHI HOGA.
 const Article = require('./models/Article'); 
 
 app.get('/news/:slug', async (req, res) => {
     try {
-        // 1. Database se Article nikalo
         const article = await Article.findOne({ slug: req.params.slug });
 
-        // 2. Data prepare karo (Fallback ke sath)
         const title = article ? (article.title_hi || article.longHeadline) : 'India Jagran News';
         let description = article ? (article.summary_hi || article.summary_en) : 'Latest News from India Jagran';
         if(description && description.length > 150) description = description.substring(0, 150) + '...';
         
-        let image = 'https://indiajagran.com/logo.jpg'; // Default Logo
+        let image = 'https://indiajagran.com/logo.jpg'; 
         if (article && article.featuredImage) {
             image = article.featuredImage.startsWith('http') 
                 ? article.featuredImage 
                 : `https://indiajagran.com${article.featuredImage}`;
         }
 
-        // 3. Asli React Page ka URL (Jahan user ko bhejna hai)
         const frontendUrl = `https://indiajagran.com/article/${req.params.slug}`;
 
-        // 4. HTML Generate karo (Dynamic Meta Tags + Redirect Script)
         const html = `
             <!DOCTYPE html>
             <html lang="en">
@@ -95,18 +88,15 @@ app.get('/news/:slug', async (req, res) => {
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>${title}</title>
-
                 <meta property="og:title" content="${title}" />
                 <meta property="og:description" content="${description}" />
                 <meta property="og:image" content="${image}" />
                 <meta property="og:url" content="${frontendUrl}" />
                 <meta property="og:type" content="article" />
-                
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:title" content="${title}" />
                 <meta name="twitter:description" content="${description}" />
                 <meta name="twitter:image" content="${image}" />
-
                 <script>
                     window.location.href = "${frontendUrl}";
                 </script>
@@ -116,7 +106,6 @@ app.get('/news/:slug', async (req, res) => {
             </body>
             </html>
         `;
-
         res.send(html);
 
     } catch (error) {
@@ -125,60 +114,9 @@ app.get('/news/:slug', async (req, res) => {
     }
 });
 
-// --------------------------------------------------------------
-// --- OLD LOGIC: SSR FOR LOCALHOST/BUILD (Existing Code) ---
-// --------------------------------------------------------------
-
-app.get('/article/:slug', async (req, res) => {
-    const filePath = path.resolve(buildPath, 'index.html');
-
-    try {
-        const article = await Article.findOne({ slug: req.params.slug });
-        
-        // Note: Agar build folder nahi hai (Render par), toh ye fail hoga, 
-        // lekin humare naye '/news/' route ko iski zaroorat nahi hai.
-        let htmlData = await fs.readFile(filePath, 'utf8');
-
-        if (!article) {
-            return res.send(htmlData);
-        }
-
-        const title = article.title_hi || article.longHeadline || 'India Jagran';
-        let description = article.summary_hi || article.summary_en || 'Latest News from India Jagran';
-        if(description.length > 150) description = description.substring(0, 150) + '...';
-
-        let image = article.featuredImage || 'https://indiajagran.com/logo.jpg';
-        if (image && !image.startsWith('http')) {
-            image = `https://indiajagran.com${image}`;
-        }
-        
-        const url = `https://indiajagran.com/article/${article.slug}`;
-
-        htmlData = htmlData
-            .replace(/<title>.*?<\/title>/, `<title>${title}</title>`)
-            .replace(/<meta name="description" content=".*?"\s*\/?>/, `<meta name="description" content="${description}" />`)
-            .replace(/<meta property="og:title" content=".*?"\s*\/?>/, `<meta property="og:title" content="${title}" />`)
-            .replace(/<meta property="og:description" content=".*?"\s*\/?>/, `<meta property="og:description" content="${description}" />`)
-            .replace(/<meta property="og:image" content=".*?"\s*\/?>/, `<meta property="og:image" content="${image}" />`)
-            .replace(/<meta property="og:url" content=".*?"\s*\/?>/, `<meta property="og:url" content="${url}" />`)
-            .replace(/<meta name="twitter:title" content=".*?"\s*\/?>/, `<meta name="twitter:title" content="${title}" />`)
-            .replace(/<meta name="twitter:description" content=".*?"\s*\/?>/, `<meta name="twitter:description" content="${description}" />`)
-            .replace(/<meta name="twitter:image" content=".*?"\s*\/?>/, `<meta name="twitter:image" content="${image}" />`);
-
-        res.send(htmlData);
-
-    } catch (error) {
-        console.error('Error in SSR Meta Injection:', error);
-        try { res.sendFile(filePath); } catch (err) { 
-            // Agar build file na mile, tab bhi hum server crash nahi hone denge
-            res.status(404).send('Page not found (Build missing on server)'); 
-        }
-    }
-});
-
-// --- Catch All Route ---
-app.get(/(.*)/, (req, res) => {
-    res.sendFile(path.resolve(buildPath, 'index.html'));
+// --- ROOT ROUTE (Error se bachne ke liye) ---
+app.get('/', (req, res) => {
+    res.send('India Jagran Backend is Running Successfully! 🚀 (Use Frontend for UI)');
 });
 
 // --- Start Server ---
