@@ -1,24 +1,25 @@
 const jwt = require('jsonwebtoken');
 
 module.exports = function (req, res, next) {
-    // Get token from header
+    // Header se token nikalein
     const authHeader = req.header('Authorization');
 
-    // Check if not token
+    // Check karein token hai ya nahi
     if (!authHeader) {
         return res.status(401).json({ msg: 'No token, authorization denied' });
     }
 
     try {
-        // The token is sent as "Bearer <token>"
+        // Token format: "Bearer <token>"
         const token = authHeader.split(' ')[1];
         
         if (!token) {
-            return res.status(401).json({ msg: 'Token format is incorrect, authorization denied' });
+            return res.status(401).json({ msg: 'Token format is incorrect' });
         }
         
+        // Verify karein
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded.user;
+        req.user = decoded.user; // User ID request me add kar di
         next();
     } catch (err) {
         res.status(401).json({ msg: 'Token is not valid' });

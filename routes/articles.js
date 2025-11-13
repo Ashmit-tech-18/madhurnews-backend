@@ -1,7 +1,12 @@
-// File: backend/routes/articles.js (UPDATED: Added Level 3 District Route)
+// File: backend/routes/articles.js (UPDATED: With Auth & Admin Middleware)
 
 const express = require('express');
 const router = express.Router();
+
+// --- IMPORT MIDDLEWARE (Security Guards) ---
+const auth = require('../middleware/auth');   // Checks if user is logged in
+const admin = require('../middleware/admin'); // Checks if user is Admin
+// -------------------------------------------
 
 // Controller functions ko import karein
 const {
@@ -20,9 +25,20 @@ const {
 
 // --- Article Routes ---
 
-// @route   POST /api/articles
-// @desc    Create a new article
-router.post('/', createArticle);
+// 1. CREATE ARTICLE (Protected: Logged in users only)
+// Editor bhi likh sakta hai, isliye sirf 'auth' lagaya hai
+router.post('/', auth, createArticle);
+
+// 2. UPDATE ARTICLE (Protected: Admin Only)
+// Editor update nahi kar payega
+router.put('/:id', auth, admin, updateArticle);
+
+// 3. DELETE ARTICLE (Protected: Admin Only)
+// Editor delete nahi kar payega
+router.delete('/:id', auth, admin, deleteArticle);
+
+
+// --- PUBLIC ROUTES (Open for everyone) ---
 
 // @route   GET /api/articles
 // @desc    Get all articles
@@ -33,7 +49,7 @@ router.get('/', getAllArticles);
 router.get('/search', searchArticles);
 
 // @route   GET /api/articles/sitemap
-// @desc    Generate sitemap
+// @desc    Generate sitemap (Placed before dynamic ID routes)
 router.get('/sitemap', generateSitemap);
 
 // @route   GET /api/articles/id/:id
@@ -52,7 +68,6 @@ router.get('/category/:category', getArticlesByCategory);
 // Level 2: Category + Subcategory (e.g., /category/national/uttar-pradesh)
 router.get('/category/:category/:subcategory', getArticlesByCategory);
 
-// --- !!! NEW LEVEL 3 ROUTE ADDED !!! ---
 // Level 3: Category + Subcategory + District (e.g., /category/national/uttar-pradesh/lucknow)
 router.get('/category/:category/:subcategory/:district', getArticlesByCategory);
 // ---------------------------------------
@@ -65,14 +80,5 @@ router.get('/related', getRelatedArticles);
 // @route   GET /api/articles/top-news
 // @desc    Get top news articles (for sidebar)
 router.get('/top-news', getTopNews);
-
-
-// @route   PUT /api/articles/:id
-// @desc    Update an article
-router.put('/:id', updateArticle);
-
-// @route   DELETE /api/articles/:id
-// @desc    Delete an article
-router.delete('/:id', deleteArticle);
 
 module.exports = router;
