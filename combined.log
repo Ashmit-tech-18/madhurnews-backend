@@ -886,3 +886,40 @@
 {"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/National \u001b[32m200\u001b[0m 0.419 ms - 0\u001b[0m","timestamp":"2025-11-16T18:29:58.583Z"}
 {"level":"info","message":"\u001b[0mGET /api/articles/category/National \u001b[32m200\u001b[0m 658.775 ms - -\u001b[0m","timestamp":"2025-11-16T18:29:59.255Z"}
 {"level":"info","message":"Running Auto Fetch Job...","timestamp":"2025-11-16T18:30:00.045Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-16T18:45:03.416Z"}
+{"level":"info","message":"MongoDB Connected Successfully","timestamp":"2025-11-16T18:45:04.061Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m200\u001b[0m 1.593 ms - 0\u001b[0m","timestamp":"2025-11-16T18:45:09.349Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 2398.427 ms - -\u001b[0m","timestamp":"2025-11-16T18:45:11.887Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/1763295919950-12.jpeg \u001b[32m200\u001b[0m 8.971 ms - 54689\u001b[0m","timestamp":"2025-11-16T18:46:53.461Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/Politics \u001b[32m200\u001b[0m 0.302 ms - 0\u001b[0m","timestamp":"2025-11-16T18:49:38.877Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/Politics \u001b[32m200\u001b[0m 260.899 ms - -\u001b[0m","timestamp":"2025-11-16T18:49:39.147Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/admin/all \u001b[32m200\u001b[0m 0.350 ms - 0\u001b[0m","timestamp":"2025-11-16T18:54:09.976Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/admin/all \u001b[32m200\u001b[0m 4901.304 ms - -\u001b[0m","timestamp":"2025-11-16T18:54:15.197Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/admin/all \u001b[32m200\u001b[0m 4530.990 ms - -\u001b[0m","timestamp":"2025-11-16T18:54:19.987Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/1763295919950-12.jpeg \u001b[36m304\u001b[0m 3.185 ms - -\u001b[0m","timestamp":"2025-11-16T18:54:20.334Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/id/6919c3b54659a0ed4acc3e22 \u001b[32m200\u001b[0m 0.417 ms - 0\u001b[0m","timestamp":"2025-11-16T18:54:26.469Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/id/6919c3b54659a0ed4acc3e22 \u001b[32m200\u001b[0m 272.258 ms - -\u001b[0m","timestamp":"2025-11-16T18:54:26.746Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/upload \u001b[32m200\u001b[0m 0.629 ms - 0\u001b[0m","timestamp":"2025-11-16T18:54:36.939Z"}
+{"level":"error","message":"Unexpected field","timestamp":"2025-11-16T18:54:37.120Z"}
+{"level":"info","message":"\u001b[0mPOST /api/articles/upload \u001b[31m500\u001b[0m 175.896 ms - 53\u001b[0m","timestamp":"2025-11-16T18:54:37.139Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-16T18:57:51.314Z"}
+{"level":"info","message":"MongoDB Connected Successfully","timestamp":"2025-11-16T18:57:52.076Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/id/6919c3b54659a0ed4acc3e22 \u001b[32m200\u001b[0m 3.839 ms - 0\u001b[0m","timestamp":"2025-11-16T18:58:16.420Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/id/6919c3b54659a0ed4acc3e22 \u001b[32m200\u001b[0m 647.217 ms - -\u001b[0m","timestamp":"2025-11-16T18:58:17.088Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/1763295919950-12.jpeg \u001b[36m304\u001b[0m 6.364 ms - -\u001b[0m","timestamp":"2025-11-16T18:58:17.660Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/admin/all \u001b[32m200\u001b[0m 0.672 ms - 0\u001b[0m","timestamp":"2025-11-16T18:58:17.711Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/admin/all \u001b[32m200\u001b[0m 6414.908 ms - -\u001b[0m","timestamp":"2025-11-16T18:58:24.419Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/admin/all \u001b[32m200\u001b[0m 3973.490 ms - -\u001b[0m","timestamp":"2025-11-16T18:58:28.618Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/1763295919950-12.jpeg \u001b[36m304\u001b[0m 2.011 ms - -\u001b[0m","timestamp":"2025-11-16T18:58:28.695Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/id/6919c3b54659a0ed4acc3e22 \u001b[32m200\u001b[0m 0.295 ms - 0\u001b[0m","timestamp":"2025-11-16T18:58:31.188Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/id/6919c3b54659a0ed4acc3e22 \u001b[32m200\u001b[0m 0.610 ms - 0\u001b[0m","timestamp":"2025-11-16T18:58:31.209Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/id/6919c3b54659a0ed4acc3e22 \u001b[32m200\u001b[0m 96.251 ms - -\u001b[0m","timestamp":"2025-11-16T18:58:31.295Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/id/6919c3b54659a0ed4acc3e22 \u001b[32m200\u001b[0m 96.564 ms - -\u001b[0m","timestamp":"2025-11-16T18:58:31.398Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/upload \u001b[32m200\u001b[0m 0.608 ms - 0\u001b[0m","timestamp":"2025-11-16T18:58:38.490Z"}
+{"level":"info","message":"\u001b[0mPOST /api/articles/upload \u001b[32m200\u001b[0m 4600.274 ms - 119\u001b[0m","timestamp":"2025-11-16T18:58:43.096Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/6919c3b54659a0ed4acc3e22 \u001b[32m200\u001b[0m 0.258 ms - 0\u001b[0m","timestamp":"2025-11-16T18:58:48.511Z"}
+{"level":"info","message":"\u001b[0mPUT /api/articles/6919c3b54659a0ed4acc3e22 \u001b[32m200\u001b[0m 284.780 ms - -\u001b[0m","timestamp":"2025-11-16T18:58:48.801Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/admin/all \u001b[32m200\u001b[0m 0.502 ms - 0\u001b[0m","timestamp":"2025-11-16T18:58:50.252Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m200\u001b[0m 0.453 ms - 0\u001b[0m","timestamp":"2025-11-16T18:58:52.376Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/admin/all \u001b[32m200\u001b[0m 4214.171 ms - -\u001b[0m","timestamp":"2025-11-16T18:58:54.827Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 6795.845 ms - -\u001b[0m","timestamp":"2025-11-16T18:58:59.496Z"}

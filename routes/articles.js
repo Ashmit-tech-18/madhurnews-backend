@@ -99,7 +99,7 @@ router.delete('/:id', protect, deleteArticle);
 
 // 4. Direct Image Upload (For Rich Text Editor)
 // Note: Standard field name usually 'file' hota hai editors me
-router.post('/upload', protect, upload.single('file'), uploadImage);
+router.post('/upload', protect, upload.single('image'), uploadImage);
 
 // 5. Admin Status Update
 router.put('/:id/status', protect, adminOnly, updateArticleStatus);
