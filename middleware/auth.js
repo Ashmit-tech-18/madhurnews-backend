@@ -1,27 +1,30 @@
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
-module.exports = function (req, res, next) {
-    // Header se token nikalein
-    const authHeader = req.header('Authorization');
+const protect = async (req, res, next) => {
+  let token;
 
-    // Check karein token hai ya nahi
-    if (!authHeader) {
-        return res.status(401).json({ msg: 'No token, authorization denied' });
-    }
-
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
-        // Token format: "Bearer <token>"
-        const token = authHeader.split(' ')[1];
-        
-        if (!token) {
-            return res.status(401).json({ msg: 'Token format is incorrect' });
-        }
-        
-        // Verify karein
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded.user; // User ID request me add kar di
-        next();
-    } catch (err) {
-        res.status(401).json({ msg: 'Token is not valid' });
+      // Get token from header
+      token = req.headers.authorization.split(' ')[1];
+
+      // Verify token
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      // Get user from the token
+      req.user = await User.findById(decoded.id).select('-password');
+
+      next();
+    } catch (error) {
+      console.error(error);
+      res.status(401).json({ message: 'Not authorized' });
     }
+  }
+
+  if (!token) {
+    res.status(401).json({ message: 'Not authorized, no token' });
+  }
 };
+
+module.exports = { protect }; // 🔥 Ensure this is exported like this

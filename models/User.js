@@ -1,35 +1,60 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const UserSchema = new mongoose.Schema({
-    // ... (Old Fields Unchanged)
-    email: {
-        type: String,
-        required: true,
-        unique: true,
-    },
-    password: {
-        type: String,
-        required: true,
-    },
-    
-    // --- NEW FIELD: ROLE ---
-    role: {
-        type: String,
-        enum: ['admin', 'editor'], // Sirf ye do values allowed hain
-        default: 'editor' // By default sab editor banenge
-    }
-    // -----------------------
+  name: {
+    type: String,
+    required: [true, 'Please add a name'],
+  },
+  email: {
+    type: String,
+    required: [true, 'Please add an email'],
+    unique: true,
+    match: [
+      /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+      'Please add a valid email',
+    ],
+  },
+  password: {
+    type: String,
+    required: [true, 'Please add a password'],
+    minlength: 6,
+    select: false,
+  },
+  
+  // --- NEW ADDITION: Role Based Access Control ---
+  role: {
+    type: String,
+    enum: ['user', 'editor', 'admin'], // Sirf ye 3 roles allow honge
+    default: 'user' // By default koi bhi naya user 'user' banega (Admin use badal sakta hai)
+  },
+  // -----------------------------------------------
+
+  resetPasswordToken: String,
+  resetPasswordExpire: Date,
+}, { timestamps: true }); // Timestamps automatically createdAt aur updatedAt manage karega
+
+// Encrypt password using bcrypt
+UserSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) {
+    next();
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
 });
 
-// Hash password before saving the user (Old Logic Unchanged)
-UserSchema.pre('save', async function (next) {
-    if (!this.isModified('password')) {
-        return next();
-    }
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-});
+// Sign JWT and return
+UserSchema.methods.getSignedJwtToken = function () {
+  return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRE,
+  });
+};
+
+// Match user entered password to hashed password in database
+UserSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
 
 module.exports = mongoose.model('User', UserSchema);

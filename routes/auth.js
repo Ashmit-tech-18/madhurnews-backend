@@ -1,29 +1,48 @@
+// File: backend/routes/auth.js
+
 const express = require('express');
 const router = express.Router();
-// Import updateUser function here
-const { registerUser, loginUser, getAllEditors, deleteUser, updateUser } = require('../controllers/authController');
-const auth = require('../middleware/auth'); // Token check karne ke liye
-const admin = require('../middleware/admin'); // Admin check karne ke liye
+const User = require('../models/User'); 
 
-// @route   POST api/auth/register
+// Import Controllers
+const { 
+    registerUser, 
+    loginUser, 
+    getMe,
+    updateDetails, 
+    getEditors,     
+    deleteUser,     
+    updateUser,     
+    subscribeUser,   
+    getSubscribers   
+} = require('../controllers/authController');
+
+const { protect } = require('../middleware/auth');
+
+// Helper Middleware for Admin
+const adminOnly = (req, res, next) => {
+    if (req.user && req.user.role === 'admin') {
+        next();
+    } else {
+        res.status(403).json({ message: 'Not authorized as an admin' });
+    }
+};
+
+// --- Public Auth Routes ---
 router.post('/register', registerUser);
-
-// @route   POST api/auth/login
 router.post('/login', loginUser);
 
-// --- NEW ROUTES ---
+// --- Private User Routes ---
+router.get('/me', protect, getMe);
+router.put('/updatedetails', protect, updateDetails); // Update Self Password/Name
 
-// @route   GET api/auth/editors
-// @desc    Get all editors (Admin Only)
-router.get('/editors', auth, admin, getAllEditors);
+// --- Admin Team Management Routes ---
+router.get('/editors', protect, adminOnly, getEditors); 
+router.delete('/users/:id', protect, adminOnly, deleteUser);
+router.put('/users/:id', protect, adminOnly, updateUser);
 
-// @route   DELETE api/auth/users/:id
-// @desc    Delete a user (Admin Only)
-router.delete('/users/:id', auth, admin, deleteUser);
-
-// --- NEW ROUTE: Update User ---
-// @route   PUT api/auth/users/:id
-// @desc    Update email or password (Admin Only)
-router.put('/users/:id', auth, admin, updateUser); // <--- YE ADD KIYA HAI
+// --- Subscriber Routes ---
+router.post('/subscribe', subscribeUser); // Public
+router.get('/subscribers', protect, adminOnly, getSubscribers); // Admin Only
 
 module.exports = router;

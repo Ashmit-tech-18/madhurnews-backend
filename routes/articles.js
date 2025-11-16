@@ -1,84 +1,93 @@
-// File: backend/routes/articles.js (UPDATED: With Auth & Admin Middleware)
+// File: backend/routes/articles.js
 
 const express = require('express');
 const router = express.Router();
+const Article = require('../models/Article'); 
+const multer = require('multer');
+const { protect } = require('../middleware/auth');
 
-// --- IMPORT MIDDLEWARE (Security Guards) ---
-const auth = require('../middleware/auth');   // Checks if user is logged in
-const admin = require('../middleware/admin'); // Checks if user is Admin
-// -------------------------------------------
-
-// Controller functions ko import karein
-const {
-    createArticle,
-    getAllArticles,
-    getArticleById,
-    getArticleBySlug,
+const { 
+    getArticles, 
+    getArticleById, 
+    createArticle, 
+    updateArticle, 
+    deleteArticle, 
+    uploadImage,
+    getAdminArticles,    
+    updateArticleStatus,
     getArticlesByCategory,
-    getRelatedArticles, 
-    getTopNews, 
+    getRelatedArticles,
+    getTopNews,
     searchArticles,
-    updateArticle,
-    deleteArticle,
-    generateSitemap
-} = require('../controllers/articleController'); 
+    getArticleBySlug,
+    getHomeFeed // <--- Imported
+} = require('../controllers/articleController');
 
-// --- Article Routes ---
+// Multer Config
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => { cb(null, 'uploads/'); },
+    filename: (req, file, cb) => { cb(null, `${Date.now()}-${file.originalname}`); },
+});
+const upload = multer({ storage });
 
-// 1. CREATE ARTICLE (Protected: Logged in users only)
-// Editor bhi likh sakta hai, isliye sirf 'auth' lagaya hai
-router.post('/', auth, createArticle);
-
-// 2. UPDATE ARTICLE (Protected: Admin Only)
-// Editor update nahi kar payega
-router.put('/:id', auth, admin, updateArticle);
-
-// 3. DELETE ARTICLE (Protected: Admin Only)
-// Editor delete nahi kar payega
-router.delete('/:id', auth, admin, deleteArticle);
+// Helper Middleware
+const adminOnly = (req, res, next) => {
+    if (req.user && req.user.role === 'admin') { next(); } 
+    else { res.status(403).json({ message: 'Not authorized as an admin' }); }
+};
 
 
-// --- PUBLIC ROUTES (Open for everyone) ---
 
-// @route   GET /api/articles
-// @desc    Get all articles
-router.get('/', getAllArticles);
+// ==================================================================
+// 🔥 PRIORITY 1: SPECIAL & ADMIN ROUTES
+// ==================================================================
 
-// @route   GET /api/articles/search
-// @desc    Search articles by query (q)
+// Admin Dashboard Route
+router.get('/admin/all', protect, adminOnly, getAdminArticles);
+
+// Optimized Home Feed Route
+router.get('/feed', getHomeFeed);
+
+// Search & Features
 router.get('/search', searchArticles);
-
-// @route   GET /api/articles/sitemap
-// @desc    Generate sitemap (Placed before dynamic ID routes)
-router.get('/sitemap', generateSitemap);
-
-// @route   GET /api/articles/id/:id
-// @desc    Get article by ID
-router.get('/id/:id', getArticleById);
-
-// @route   GET /api/articles/slug/:slug
-// @desc    Get article by slug
-router.get('/slug/:slug', getArticleBySlug);
-
-// --- CATEGORY ROUTES (UPDATED) ---
-
-// Level 1: Category only (e.g., /category/national)
-router.get('/category/:category', getArticlesByCategory);
-
-// Level 2: Category + Subcategory (e.g., /category/national/uttar-pradesh)
-router.get('/category/:category/:subcategory', getArticlesByCategory);
-
-// Level 3: Category + Subcategory + District (e.g., /category/national/uttar-pradesh/lucknow)
-router.get('/category/:category/:subcategory/:district', getArticlesByCategory);
-// ---------------------------------------
-
-
-// @route   GET /api/articles/related
-// @desc    Get related articles (Supports limit)
+router.get('/top-news', getTopNews);
 router.get('/related', getRelatedArticles);
 
-// @route   GET /api/articles/top-news
-// @desc    Get top news articles (for sidebar)
-router.get('/top-news', getTopNews);
+// ==================================================================
+// 🔥 PRIORITY 2: CATEGORY ROUTES
+// ==================================================================
+router.get('/category/:category', getArticlesByCategory);
+router.get('/category/:category/:subcategory', getArticlesByCategory);
+router.get('/category/:category/:subcategory/:district', getArticlesByCategory);
+
+// ==================================================================
+// 🔥 PRIORITY 3: GENERAL & DYNAMIC ROUTES
+// ==================================================================
+
+// Public Feed
+router.get('/', getArticles);
+
+// Get By Slug
+router.get('/slug/:slug', getArticleBySlug);
+
+// Get By ID
+router.get('/id/:id', getArticleById); 
+
+// ==================================================================
+// 🔥 PRIORITY 4: WRITE OPERATIONS (Protected)
+// ==================================================================
+
+router.post('/', protect, createArticle);
+router.put('/:id', protect, updateArticle);
+router.delete('/:id', protect, deleteArticle);
+router.post('/upload', protect, upload.single('image'), uploadImage);
+
+// Admin Status Update
+router.put('/:id/status', protect, adminOnly, updateArticleStatus);
+
+// ==================================================================
+// 🔥 LAST PRIORITY: CATCH-ALL ID ROUTE
+// ==================================================================
+router.get('/:id', getArticleById);
 
 module.exports = router;

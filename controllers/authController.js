@@ -1,115 +1,111 @@
-const User = require('../models/User');
-const bcrypt = require('bcryptjs');
+// File: backend/controllers/authController.js
+
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const User = require('../models/User');
+const Subscriber = require('../models/Subscriber'); 
 
-// 1. Register (Existing)
-exports.registerUser = async (req, res) => {
-    const { email, password } = req.body;
-    try {
-        let user = await User.findOne({ email });
-        if (user) {
-            return res.status(400).json({ msg: 'User already exists' });
-        }
-        user = new User({ email, password });
-        await user.save();
-        res.status(201).json({ msg: 'User registered successfully' });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
-    }
+// 1. Register
+const registerUser = async (req, res) => {
+  const { name, email, password, role } = req.body; 
+  if (!name || !email || !password) return res.status(400).json({ message: 'Please add all fields' });
+  const userExists = await User.findOne({ email });
+  if (userExists) return res.status(400).json({ message: 'User already exists' });
+
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+  const user = await User.create({ name, email, password: hashedPassword, role: role || 'user' });
+
+  if (user) {
+    res.status(201).json({
+      _id: user.id, name: user.name, email: user.email, role: user.role, token: generateToken(user._id),
+    });
+  } else { res.status(400).json({ message: 'Invalid user data' }); }
 };
 
-// 2. Login (Existing)
-exports.loginUser = async (req, res) => {
-    const { email, password } = req.body;
-    try {
-        let user = await User.findOne({ email });
-        if (!user) {
-            return res.status(400).json({ msg: 'Invalid Credentials' });
-        }
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).json({ msg: 'Invalid Credentials' });
-        }
-        
-        const payload = { user: { id: user.id } };
-        
-        jwt.sign(
-            payload,
-            process.env.JWT_SECRET,
-            { expiresIn: '5h' },
-            (err, token) => {
-                if (err) throw err;
-                res.json({ 
-                    token,
-                    user: {
-                        id: user.id,
-                        email: user.email,
-                        role: user.role || 'editor'
-                    }
-                });
-            }
-        );
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
-    }
+// 2. Login
+const loginUser = async (req, res) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email }).select('+password'); 
+  if (user && (await bcrypt.compare(password, user.password))) {
+    res.json({
+      _id: user.id, name: user.name, email: user.email, role: user.role, token: generateToken(user._id),
+    });
+  } else { res.status(400).json({ message: 'Invalid credentials' }); }
 };
 
-// --- NEW: Get All Users (For Admin Dashboard) ---
-exports.getAllEditors = async (req, res) => {
+// 3. Get Me
+const getMe = async (req, res) => { res.status(200).json(req.user); };
+
+// 4. Update Self Details (Password/Name) - 🔥 NEW
+const updateDetails = async (req, res) => {
     try {
-        // Password mat bhejo security ke liye (.select('-password'))
-        const users = await User.find({ role: 'editor' }).select('-password').sort({ date: -1 });
-        res.json(users);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
-    }
+        const fieldsToUpdate = { name: req.body.name, email: req.body.email };
+        if (req.body.password) {
+            const salt = await bcrypt.genSalt(10);
+            fieldsToUpdate.password = await bcrypt.hash(req.body.password, salt);
+        }
+        const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, { new: true, runValidators: true });
+        res.status(200).json({ success: true, data: user });
+    } catch (error) { res.status(500).json({ message: error.message }); }
 };
 
-// --- NEW: Delete User (For Admin Dashboard) ---
-exports.deleteUser = async (req, res) => {
+// --- TEAM MANAGEMENT ---
+
+// 5. Get Editors
+const getEditors = async (req, res) => {
+    try {
+        const users = await User.find({}).select('-password').sort({ createdAt: -1 });
+        res.status(200).json(users);
+    } catch (error) { res.status(500).json({ message: error.message }); }
+};
+
+// 6. Delete User
+const deleteUser = async (req, res) => {
     try {
         await User.findByIdAndDelete(req.params.id);
-        res.json({ msg: 'User deleted successfully' });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
-    }
+        res.status(200).json({ message: 'User removed' });
+    } catch (error) { res.status(500).json({ message: error.message }); }
 };
 
-// --- NEW FUNCTION: Update User (Email/Password) ---
-exports.updateUser = async (req, res) => {
-    const { email, newPassword } = req.body;
-
+// 7. Update User (Role/Data by Admin)
+const updateUser = async (req, res) => {
     try {
-        // 1. User find karo
-        let user = await User.findById(req.params.id);
+        const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true }).select('-password');
+        res.status(200).json(user);
+    } catch (error) { res.status(500).json({ message: error.message }); }
+};
 
-        if (!user) {
-            return res.status(404).json({ msg: 'User not found' });
-        }
+// --- SUBSCRIBERS ---
 
-        // 2. Agar email update karna hai
-        if (email) {
-            user.email = email;
-        }
+// 8. Subscribe
+const subscribeUser = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: 'Email is required' });
+    const existing = await Subscriber.findOne({ email });
+    if (existing) return res.status(400).json({ message: 'Already subscribed' });
+    await Subscriber.create({ email });
+    res.status(201).json({ message: 'Subscribed' });
+  } catch (error) { res.status(500).json({ message: error.message }); }
+};
 
-        // 3. Agar password update karna hai
-        // Note: User model me 'pre-save' hook password ko hash kar dega, 
-        // isliye hum yahan seedha assign kar rahe hain.
-        if (newPassword && newPassword.trim() !== "") {
-            user.password = newPassword;
-        }
+// 9. Get Subscribers
+const getSubscribers = async (req, res) => {
+  try {
+    const subscribers = await Subscriber.find().sort({ createdAt: -1 });
+    res.status(200).json(subscribers);
+  } catch (error) { res.status(500).json({ message: error.message }); }
+};
 
-        // 4. Save changes
-        await user.save();
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+};
 
-        res.json({ msg: 'User updated successfully' });
-
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
-    }
+// 🔥 EXPORTS (Check names carefully)
+module.exports = {
+  registerUser, loginUser, getMe, 
+  updateDetails, // <--- Make sure this is here
+  getEditors, deleteUser, updateUser, 
+  subscribeUser, getSubscribers
 };
