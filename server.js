@@ -5,13 +5,14 @@ const mongoose = require('mongoose');
 const cron = require('node-cron');
 const path = require('path');
 
-// --- Import Sitemap Controller ---
-const { generateSitemap } = require('./controllers/articleController');
+// --- Import Sitemap Controller (Ab Hum Direct Use Karenge, isliye ise hataya ja sakta hai) ---
+// const { generateSitemap } = require('./controllers/articleController'); 
 
 // --- Optimization & Logging ---
 const compression = require('compression');
 const morgan = require('morgan');
 const logger = require('./utils/logger');
+const Article = require('./models/Article'); // <-- Ye zaroori hai
 
 dotenv.config();
 
@@ -68,30 +69,80 @@ const authRoutes = require('./routes/auth');
 const articleRoutes = require('./routes/articles');
 const contactRoutes = require('./routes/contact');
 
-/*  
+/* ------------------------------------------
+   🚀 FIXED SITEMAP ROUTE (DIRECT IN SERVER.JS)
    ------------------------------------------
-   🚀 FIX: DISABLE COMPRESSION ONLY FOR SITEMAP 
-   ------------------------------------------
+   Humne controller ko bypass karke seedha yahan logic likha hai
+   taki Memory Leak aur Date Errors se bacha ja sake.
 */
 
-app.get('/sitemap.xml', (req, res, next) => {
-    // Prevent gzip/br compression for sitemap only
-    res.set('Content-Encoding', 'identity');
-    next();
-});
+app.get('/sitemap.xml', async (req, res) => {
+    try {
+        // 1. Force XML Headers
+        res.header('Content-Type', 'application/xml');
+        // Disable compression to prevent buffering issues
+        res.header('Content-Encoding', 'identity'); 
 
-// Real sitemap controller
-app.get('/sitemap.xml', generateSitemap);
+        const baseUrl = process.env.FRONTEND_URL || "https://www.indiajagran.com";
+        const today = new Date().toISOString();
+
+        let xml = '<?xml version="1.0" encoding="UTF-8"?>';
+        xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+
+        // 2. Static Pages
+        const staticPages = ["", "about", "contact", "privacy-policy", "terms-condition", "subscribe"];
+        staticPages.forEach(page => {
+            xml += `<url><loc>${baseUrl}/${page}</loc><lastmod>${today}</lastmod><priority>${page === "" ? "1.0" : "0.8"}</priority></url>`;
+        });
+
+        // 3. Categories
+        const categories = ["national","politics","business","entertainment","sports","world","education","health","religion","crime","poetry-corner"];
+        categories.forEach(cat => {
+            xml += `<url><loc>${baseUrl}/category/${cat}</loc><lastmod>${today}</lastmod><priority>0.9</priority></url>`;
+        });
+
+        // 4. Articles (SAFE & OPTIMIZED FETCH)
+        // .lean() use karne se memory usage 10x kam ho jata hai
+        const articles = await Article.find({ status: 'published' })
+            .select('slug createdAt updatedAt')
+            .sort({ createdAt: -1 })
+            .lean();
+
+        articles.forEach(art => {
+            if (art.slug) {
+                let dateStr = today;
+                // Crash-Proof Date Logic
+                try {
+                    if (art.updatedAt) dateStr = new Date(art.updatedAt).toISOString();
+                    else if (art.createdAt) dateStr = new Date(art.createdAt).toISOString();
+                } catch (e) {
+                    // Agar date kharab hai toh current date use kare, crash na kare
+                    dateStr = today;
+                }
+                
+                xml += `<url><loc>${baseUrl}/article/${art.slug}</loc><lastmod>${dateStr}</lastmod><priority>0.7</priority></url>`;
+            }
+        });
+
+        xml += '</urlset>';
+        res.send(xml);
+
+    } catch (err) {
+        console.error("Sitemap Critical Error:", err);
+        // Agar error aaye to screen par dikhaye (debugging ke liye)
+        res.status(500).send(`SITEMAP FAILED: ${err.message}`);
+    }
+});
 
 // --- Use API Routes ---
 app.use('/api/auth', authRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/contact', contactRoutes);
 
-// --- Magic Route for Social Share Redirects ---
+// --- Magic Route for Social Share Redirects (UNCHANGED) ---
 app.get('/news/:slug', async (req, res) => {
     try {
-        const Article = require('./models/Article');
+        // Note: Article already imported above, so no need to re-require inside
         const article = await Article.findOne({ slug: req.params.slug });
 
         const frontendUrl = `${process.env.FRONTEND_URL}/news/${req.params.slug}`;

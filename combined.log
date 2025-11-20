@@ -2918,3 +2918,5 @@
 {"level":"info","message":"\u001b[0mGET /sitemap.xml \u001b[32m200\u001b[0m 1.136 ms - -\u001b[0m","timestamp":"2025-11-20T10:47:28.589Z"}
 {"level":"info","message":"\u001b[0mGET /api/articles \u001b[0m-\u001b[0m - ms - -\u001b[0m","timestamp":"2025-11-20T10:47:28.779Z"}
 {"level":"info","message":"\u001b[0mGET /favicon.ico \u001b[33m404\u001b[0m 4.295 ms - 150\u001b[0m","timestamp":"2025-11-20T10:47:34.648Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-20T11:15:57.076Z"}
+{"level":"info","message":"MongoDB Connected Successfully","timestamp":"2025-11-20T11:15:57.948Z"}
