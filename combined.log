@@ -3279,3 +3279,4 @@
 {"level":"info","message":"\u001b[0mGET /api/articles/top-news?lang=hi&exclude=up-shiksha-chayan-aayog-adhyaksh-vacancy \u001b[32m200\u001b[0m 104.368 ms - -\u001b[0m","timestamp":"2025-11-20T13:03:20.080Z"}
 {"level":"info","message":"\u001b[0mOPTIONS /api/articles/related?category=Education&slug=up-shiksha-chayan-aayog-adhyaksh-vacancy&lang=hi&limit=6 \u001b[32m204\u001b[0m 0.585 ms - 0\u001b[0m","timestamp":"2025-11-20T13:03:20.119Z"}
 {"level":"info","message":"\u001b[0mGET /api/articles/related?category=Education&slug=up-shiksha-chayan-aayog-adhyaksh-vacancy&lang=hi&limit=6 \u001b[32m200\u001b[0m 65.757 ms - -\u001b[0m","timestamp":"2025-11-20T13:03:20.192Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-20T13:28:28.383Z"}

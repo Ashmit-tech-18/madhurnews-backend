@@ -134,9 +134,56 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/subscriber', subscriberRoutes);
 
 // --- Sitemap & Root ---
-app.get('/sitemap.xml', generateSitemap);
-app.get('/', (req, res) => {
-    res.send('India Jagran Backend is Running Successfully! 🚀');
+app.get('/sitemap.xml', async (req, res) => {
+    try {
+        // 1. Database se saare articles layein (Sirf slug aur updatedAt chahiye)
+        const articles = await Article.find({}, 'slug updatedAt').sort({ updatedAt: -1 }).limit(1000);
+
+        // 2. XML ka Header define karein
+        const baseUrl = 'https://www.indiajagran.com';
+        
+        // 3. XML String start karein
+        let sitemap = '<?xml version="1.0" encoding="UTF-8"?>';
+        sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+
+        // 4. Static Pages (Home, About, Contact etc.) add karein manually
+        sitemap += `
+            <url>
+                <loc>${baseUrl}/</loc>
+                <changefreq>daily</changefreq>
+                <priority>1.0</priority>
+            </url>
+            <url>
+                <loc>${baseUrl}/about</loc>
+                <changefreq>monthly</changefreq>
+                <priority>0.8</priority>
+            </url>
+        `;
+
+        // 5. Dynamic Articles ko Loop karke add karein
+        articles.forEach(article => {
+            sitemap += `
+            <url>
+                <loc>${baseUrl}/article/${article.slug}</loc>
+                <lastmod>${new Date(article.updatedAt).toISOString()}</lastmod>
+                <changefreq>weekly</changefreq>
+                <priority>0.8</priority>
+            </url>`;
+        });
+
+        // 6. XML close karein
+        sitemap += '</urlset>';
+
+        // 7. Response Header set karein taaki Browser/Google isse XML samjhe
+        res.header('Content-Type', 'application/xml');
+        
+        // 8. Send karein
+        res.send(sitemap);
+
+    } catch (error) {
+        console.error("Sitemap Error:", error);
+        res.status(500).send("Error generating sitemap");
+    }
 });
 
 // --- Error Handling ---
