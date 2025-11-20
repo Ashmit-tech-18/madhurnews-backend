@@ -471,71 +471,61 @@ const runGNewsAutoFetch = async () => {
 };
 
 const generateSitemap = async (req, res) => {
-    const staticCategories = [
-        'national', 'politics', 'business','entertainment', 'sports', 
-        'world', 'education', 'health','religion','crime','poetry corner'
-    ];
-    const staticPages = ['', 'about', 'contact', 'privacy-policy', 'terms-condition', 'subscribe'];
-
     try {
-        const baseUrl = process.env.FRONTEND_URL;
-        if (!baseUrl) {
-            throw new Error('FRONTEND_URL is not defined in .env file');
-        }
+        res.setHeader("Content-Type", "text/xml; charset=UTF-8");
 
-        res.header('Content-Type', 'application/xml');
-        let xml = '<?xml version="1.0" encoding="UTF-8"?>';
-        xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
-        
+        const baseUrl = "https://www.indiajagran.com";
+
+        let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+        xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+
         const today = new Date().toISOString();
 
-        // 1. Static Pages
-        staticPages.forEach(page => {
-            xml += `<url><loc>${baseUrl}/${page}</loc><lastmod>${today}</lastmod><priority>${page === '' ? '1.0' : '0.8'}</priority></url>`;
-        });
+        const addUrl = (loc, lastmod, priority) => {
+            xml += `<url>
+<loc>${loc}</loc>
+<lastmod>${lastmod}</lastmod>
+<priority>${priority}</priority>
+</url>\n`;
+        };
 
-        // 2. Categories
-        staticCategories.forEach(category => {
-            xml += `<url><loc>${baseUrl}/category/${category}</loc><lastmod>${today}</lastmod><priority>0.9</priority></url>`;
-        });
+        // STATIC PAGES
+        const staticPages = ["", "about", "contact", "privacy-policy", "terms-condition", "subscribe"];
+        staticPages.forEach(page => addUrl(`${baseUrl}/${page}`, today, page === "" ? "1.0" : "0.8"));
 
-        // 3. Articles (Safe Mode)
-        const articles = await Article.find({ status: 'published' })
-            .select('slug createdAt updatedAt')
+        // STATIC CATEGORIES
+        const categories = ["national","politics","business","entertainment","sports","world","education","health","religion","crime","poetry-corner"];
+        categories.forEach(cat => addUrl(`${baseUrl}/category/${cat}`, today, "0.9"));
+
+        // DYNAMIC ARTICLES
+        const articles = await Article.find({ status: "published" })
+            .select("slug createdAt updatedAt")
             .sort({ createdAt: -1 })
-            .lean(); 
+            .lean();
 
-        articles.forEach(article => {
-            let dateStr = today;
-            
-            // 🔥 CRASH FIX: Date conversion ko safe banaya gaya hai
-            try {
-                if (article.createdAt) {
-                    const d = new Date(article.createdAt);
-                    if (!isNaN(d)) dateStr = d.toISOString();
-                } else if (article.updatedAt) {
-                    const d = new Date(article.updatedAt);
-                    if (!isNaN(d)) dateStr = d.toISOString();
-                }
-            } catch (dateErr) {
-                // Agar date kharab hai, toh ignore karein aur 'today' use karein
-                console.log(`Skipping invalid date for article: ${article.slug}`);
+        articles.forEach(art => {
+            if (!art.slug) return;
+
+            let finalDate = today;
+            if (art.updatedAt && !isNaN(new Date(art.updatedAt))) {
+                finalDate = new Date(art.updatedAt).toISOString();
+            } else if (art.createdAt && !isNaN(new Date(art.createdAt))) {
+                finalDate = new Date(art.createdAt).toISOString();
             }
 
-            if (article.slug) {
-                xml += `<url><loc>${baseUrl}/article/${article.slug}</loc><lastmod>${dateStr}</lastmod><priority>0.7</priority></url>`;
-            }
+            addUrl(`${baseUrl}/article/${art.slug}`, finalDate, "0.7");
         });
 
         xml += '</urlset>';
-        res.send(xml);
 
-    } catch (err) {
-        console.error("Sitemap Critical Error:", err);
-        // 🔥 DEBUG MODE: Asli error screen par dikhega
-        res.status(500).send(`SERVER ERROR DETAILS: ${err.message}`);
+        return res.status(200).send(xml);
+
+    } catch (error) {
+        console.error("Sitemap Error:", error);
+        return res.status(500).send("Server Error While Generating Sitemap");
     }
 };
+
 
 // 🔥 EXPORTS
 module.exports = {

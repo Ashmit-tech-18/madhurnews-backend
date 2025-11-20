@@ -2884,3 +2884,25 @@
 {"level":"info","message":"MongoDB Connected Successfully","timestamp":"2025-11-20T07:29:12.314Z"}
 {"level":"info","message":"Server running on port 5000","timestamp":"2025-11-20T08:26:21.154Z"}
 {"level":"info","message":"MongoDB Connected Successfully","timestamp":"2025-11-20T08:26:21.816Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-20T09:03:28.037Z"}
+{"level":"info","message":"MongoDB Connected Successfully","timestamp":"2025-11-20T09:03:28.621Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m204\u001b[0m 1.546 ms - 0\u001b[0m","timestamp":"2025-11-20T09:04:03.985Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[0m-\u001b[0m - ms - -\u001b[0m","timestamp":"2025-11-20T09:04:04.681Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m204\u001b[0m 2.618 ms - 0\u001b[0m","timestamp":"2025-11-20T09:04:21.514Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 1642.535 ms - -\u001b[0m","timestamp":"2025-11-20T09:04:23.295Z"}
+{"level":"info","message":"\u001b[0mGET /sitemap.xml \u001b[32m200\u001b[0m 439.434 ms - -\u001b[0m","timestamp":"2025-11-20T09:04:27.535Z"}
+{"level":"info","message":"\u001b[0mGET /favicon.ico \u001b[33m404\u001b[0m 1.406 ms - 150\u001b[0m","timestamp":"2025-11-20T09:04:30.724Z"}
+{"level":"info","message":"\u001b[0mGET /sitemap.xml \u001b[32m200\u001b[0m 439.367 ms - -\u001b[0m","timestamp":"2025-11-20T09:05:37.224Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m204\u001b[0m 0.472 ms - 0\u001b[0m","timestamp":"2025-11-20T09:14:27.582Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 1312.657 ms - -\u001b[0m","timestamp":"2025-11-20T09:14:30.911Z"}
+{"level":"info","message":"\u001b[0mGET /sitemap.xml \u001b[32m200\u001b[0m 489.371 ms - -\u001b[0m","timestamp":"2025-11-20T09:14:39.219Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-20T09:17:31.419Z"}
+{"level":"info","message":"MongoDB Connected Successfully","timestamp":"2025-11-20T09:17:32.141Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m204\u001b[0m 1.516 ms - 0\u001b[0m","timestamp":"2025-11-20T09:17:40.715Z"}
+{"level":"info","message":"\u001b[0mGET /sitemap.xml \u001b[32m200\u001b[0m 342.119 ms - -\u001b[0m","timestamp":"2025-11-20T09:17:44.032Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 2948.677 ms - -\u001b[0m","timestamp":"2025-11-20T09:17:44.166Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-20T09:26:37.989Z"}
+{"level":"info","message":"MongoDB Connected Successfully","timestamp":"2025-11-20T09:26:41.094Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m204\u001b[0m 2.349 ms - 0\u001b[0m","timestamp":"2025-11-20T09:26:56.407Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 3152.656 ms - -\u001b[0m","timestamp":"2025-11-20T09:26:59.849Z"}
+{"level":"info","message":"\u001b[0mGET /sitemap.xml \u001b[32m200\u001b[0m 366.905 ms - -\u001b[0m","timestamp":"2025-11-20T09:27:00.560Z"}
