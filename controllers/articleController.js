@@ -472,18 +472,17 @@ const runGNewsAutoFetch = async () => {
 
 const generateSitemap = async (req, res) => {
     const staticCategories = [
-        'national', 'politics', 'business', 'finance', 'entertainment', 'sports', 
-        'world', 'education', 'health', 'tech', 'religion', 'environment', 'crime', 'opinion'
+        'national', 'politics', 'business','entertainment', 'sports', 
+        'world', 'education', 'health','religion','crime','poetry corner'
     ];
     const staticPages = ['', 'about', 'contact', 'privacy-policy', 'terms-condition', 'subscribe'];
 
     try {
         const baseUrl = process.env.FRONTEND_URL;
         if (!baseUrl) {
-            return res.status(500).send('Server Error: FRONTEND_URL is not defined in .env');
+            throw new Error('FRONTEND_URL is not defined in .env file');
         }
 
-        // XML Header start
         res.header('Content-Type', 'application/xml');
         let xml = '<?xml version="1.0" encoding="UTF-8"?>';
         xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
@@ -500,23 +499,29 @@ const generateSitemap = async (req, res) => {
             xml += `<url><loc>${baseUrl}/category/${category}</loc><lastmod>${today}</lastmod><priority>0.9</priority></url>`;
         });
 
-        // 3. Articles (OPTIMIZED FIX)
-        // .lean() use karne se memory usage 10x kam ho jata hai (Server crash nahi karega)
+        // 3. Articles (Safe Mode)
         const articles = await Article.find({ status: 'published' })
-            .select('slug createdAt updatedAt') // Sirf zaroori fields mangwaye
+            .select('slug createdAt updatedAt')
             .sort({ createdAt: -1 })
             .lean(); 
 
         articles.forEach(article => {
-            // SAFETY CHECK: Agar date missing ho, toh crash hone ke bajaye current date use kare
             let dateStr = today;
-            if (article.createdAt) {
-                dateStr = new Date(article.createdAt).toISOString();
-            } else if (article.updatedAt) {
-                dateStr = new Date(article.updatedAt).toISOString();
+            
+            // 🔥 CRASH FIX: Date conversion ko safe banaya gaya hai
+            try {
+                if (article.createdAt) {
+                    const d = new Date(article.createdAt);
+                    if (!isNaN(d)) dateStr = d.toISOString();
+                } else if (article.updatedAt) {
+                    const d = new Date(article.updatedAt);
+                    if (!isNaN(d)) dateStr = d.toISOString();
+                }
+            } catch (dateErr) {
+                // Agar date kharab hai, toh ignore karein aur 'today' use karein
+                console.log(`Skipping invalid date for article: ${article.slug}`);
             }
 
-            // Ensure Slug exists
             if (article.slug) {
                 xml += `<url><loc>${baseUrl}/article/${article.slug}</loc><lastmod>${dateStr}</lastmod><priority>0.7</priority></url>`;
             }
@@ -526,8 +531,9 @@ const generateSitemap = async (req, res) => {
         res.send(xml);
 
     } catch (err) {
-        console.error("Sitemap Error:", err.message);
-        res.status(500).send('Server Error');
+        console.error("Sitemap Critical Error:", err);
+        // 🔥 DEBUG MODE: Asli error screen par dikhega
+        res.status(500).send(`SERVER ERROR DETAILS: ${err.message}`);
     }
 };
 
