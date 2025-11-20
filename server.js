@@ -20,38 +20,34 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // =======================================================================
-// 🔥 FIX 1: CORS BYPASS/HANDLE FOR SITEMAP (Code ko sabse upar rakha hai) 🔥
+// 🔥 FINAL FIX: SITEMAP ROUTE (Route Match + Safe Logic) 🔥
 // =======================================================================
-app.get('/sitemap.xml', async (req, res) => {
-    logger.info("Sitemap generation started...");
+// ✅ Note: Vercel से आने वाला ट्रैफिक '/api/articles/sitemap' पर ही आएगा।
+app.get('/api/articles/sitemap', async (req, res) => {
+    logger.info("Sitemap generation request received.");
+    
     try {
-        // Articles fetch, sirf woh fields jo sitemap ke liye chahiye
-        const articles = await Article.find({}, 'slug updatedAt');
+        // Articles fetch, सिर्फ़ ज़रूरी फ़ील्ड्स
+        const articles = await Article.find({}, 'slug updatedAt createdAt');
         
-        const baseUrl = 'https://www.indiajagran.com';
+        // Environment Variable का उपयोग करें
+        const baseUrl = process.env.FRONTEND_URL || 'https://www.indiajagran.com';
         
         let sitemap = '<?xml version="1.0" encoding="UTF-8"?>';
         sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
 
-        // Static Pages
+        // Static URLs
         sitemap += `
             <url><loc>${baseUrl}/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
             <url><loc>${baseUrl}/about</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
             <url><loc>${baseUrl}/contact</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-            <url><loc>${baseUrl}/privacy-policy</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
         `;
 
-        // Dynamic Articles ko Loop karke add karein
+        // Dynamic URLs
         articles.forEach(article => {
-            let dateString = new Date().toISOString(); // Default to now
+            // UpdatedAt को प्रेफ़रेंस, अगर नहीं तो current time
+            let dateString = article.updatedAt ? new Date(article.updatedAt).toISOString() : new Date().toISOString(); 
             
-            // Safer Date Check
-            if (article.updatedAt) {
-                dateString = new Date(article.updatedAt).toISOString();
-            } else if (article.createdAt) {
-                dateString = new Date(article.createdAt).toISOString();
-            }
-
             if (article.slug) {
                 sitemap += `
                 <url>
@@ -71,11 +67,12 @@ app.get('/sitemap.xml', async (req, res) => {
 
     } catch (e) {
         logger.error("SITEMAP ROUTE CRASH:", e);
-        // User ko 500 Error dega, aur logs mein detail aayegi
-        res.status(500).send("Error generating sitemap. Check server logs.");
+        // अगर क्रैश हुआ तो logs में स्पष्ट Error आएगा
+        res.status(500).send("Sitemap generation failed due to server error.");
     }
 });
 // =======================================================================
+
 
 // --- Middleware ---
 app.use(compression());
@@ -84,7 +81,8 @@ app.use(
         stream: {
             write: (message) => logger.info(message.trim())
         }
-    })
+    }
+    )
 );
 
 // --- CORS Configuration ---
@@ -94,7 +92,7 @@ const allowedOrigins = [
     'http://localhost:3000',
     'http://localhost:5000',
     'http://127.0.0.1:5000',
-    // 🔥 FIX 2: Render Backend aur Vercel Frontend ko ek dusre ke liye allowed karein
+    // ✅ Render Backend भी अलाउ है (पुराना फ़िक्स)
     'https://indiajagran-backend.onrender.com' 
 ];
 

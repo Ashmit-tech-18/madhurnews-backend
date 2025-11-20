@@ -3283,3 +3283,54 @@
 {"level":"info","message":"Server running on port 5000","timestamp":"2025-11-20T13:38:31.545Z"}
 {"level":"info","message":"Server running on port 5000","timestamp":"2025-11-20T13:43:36.011Z"}
 {"level":"info","message":"Server running on port 5000","timestamp":"2025-11-20T13:52:46.163Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-20T14:24:00.859Z"}
+{"beforeHandshake":false,"cause":{"code":"ECONNRESET","errno":-4077,"syscall":"read"},"errorLabelSet":{},"level":"error","message":"Error publishing scheduled articles: read ECONNRESET","stack":"MongoNetworkError: read ECONNRESET\n    at Connection.onSocketError (C:\\Users\\Abhinav Shukla\\Desktop\\News\\madhurnews\\backend\\node_modules\\mongodb\\lib\\cmap\\connection.js:110:22)\n    at TLSSocket.emit (node:events:530:35)\n    at emitErrorNT (node:internal/streams/destroy:170:8)\n    at emitErrorCloseNT (node:internal/streams/destroy:129:3)\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)","timestamp":"2025-11-20T14:35:00.057Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-20T14:37:18.060Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m204\u001b[0m 1.419 ms - 0\u001b[0m","timestamp":"2025-11-20T14:38:59.810Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 1578.682 ms - -\u001b[0m","timestamp":"2025-11-20T14:39:03.029Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/poetry-corner?lang=hi \u001b[32m204\u001b[0m 0.361 ms - 0\u001b[0m","timestamp":"2025-11-20T14:39:07.497Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/poetry-corner?lang=hi \u001b[36m304\u001b[0m 61.684 ms - -\u001b[0m","timestamp":"2025-11-20T14:39:07.561Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/crime?lang=hi \u001b[32m204\u001b[0m 0.359 ms - 0\u001b[0m","timestamp":"2025-11-20T14:39:08.564Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/crime?lang=hi \u001b[36m304\u001b[0m 109.496 ms - -\u001b[0m","timestamp":"2025-11-20T14:39:08.680Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/religion?lang=hi \u001b[32m204\u001b[0m 0.423 ms - 0\u001b[0m","timestamp":"2025-11-20T14:39:09.585Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/religion?lang=hi \u001b[36m304\u001b[0m 63.016 ms - -\u001b[0m","timestamp":"2025-11-20T14:39:09.651Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/health?lang=hi \u001b[32m204\u001b[0m 0.609 ms - 0\u001b[0m","timestamp":"2025-11-20T14:39:10.556Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/health?lang=hi \u001b[32m200\u001b[0m 66.604 ms - -\u001b[0m","timestamp":"2025-11-20T14:39:10.631Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/education?lang=hi \u001b[32m204\u001b[0m 0.163 ms - 0\u001b[0m","timestamp":"2025-11-20T14:39:11.394Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/education?lang=hi \u001b[32m200\u001b[0m 149.691 ms - -\u001b[0m","timestamp":"2025-11-20T14:39:11.547Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/sports?lang=hi \u001b[32m204\u001b[0m 0.409 ms - 0\u001b[0m","timestamp":"2025-11-20T14:39:12.729Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/sports?lang=hi \u001b[36m304\u001b[0m 110.208 ms - -\u001b[0m","timestamp":"2025-11-20T14:39:12.844Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/entertainment?lang=hi \u001b[32m204\u001b[0m 0.520 ms - 0\u001b[0m","timestamp":"2025-11-20T14:39:13.604Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/entertainment?lang=hi \u001b[36m304\u001b[0m 61.226 ms - -\u001b[0m","timestamp":"2025-11-20T14:39:13.689Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/business?lang=hi \u001b[32m204\u001b[0m 0.433 ms - 0\u001b[0m","timestamp":"2025-11-20T14:39:14.506Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/business?lang=hi \u001b[36m304\u001b[0m 133.928 ms - -\u001b[0m","timestamp":"2025-11-20T14:39:14.645Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/politics?lang=hi \u001b[32m204\u001b[0m 0.443 ms - 0\u001b[0m","timestamp":"2025-11-20T14:39:15.433Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/politics?lang=hi \u001b[32m200\u001b[0m 136.797 ms - -\u001b[0m","timestamp":"2025-11-20T14:39:15.583Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/world?lang=hi \u001b[32m204\u001b[0m 0.339 ms - 0\u001b[0m","timestamp":"2025-11-20T14:39:16.629Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/world?lang=hi \u001b[32m200\u001b[0m 132.948 ms - -\u001b[0m","timestamp":"2025-11-20T14:39:16.769Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/national?lang=hi \u001b[32m204\u001b[0m 0.433 ms - 0\u001b[0m","timestamp":"2025-11-20T14:39:17.744Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/national?lang=hi \u001b[32m200\u001b[0m 332.560 ms - -\u001b[0m","timestamp":"2025-11-20T14:39:18.092Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m204\u001b[0m 0.330 ms - 0\u001b[0m","timestamp":"2025-11-20T14:39:18.698Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 1344.137 ms - -\u001b[0m","timestamp":"2025-11-20T14:39:20.225Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/slug/rotary-gola-central-free-medical-camp-152-beneficiaries \u001b[32m204\u001b[0m 0.126 ms - 0\u001b[0m","timestamp":"2025-11-20T14:39:23.950Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/slug/rotary-gola-central-free-medical-camp-152-beneficiaries \u001b[32m200\u001b[0m 92.208 ms - -\u001b[0m","timestamp":"2025-11-20T14:39:24.050Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/top-news?lang=hi&exclude=rotary-gola-central-free-medical-camp-152-beneficiaries \u001b[32m204\u001b[0m 0.098 ms - 0\u001b[0m","timestamp":"2025-11-20T14:39:24.056Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/top-news?lang=hi&exclude=rotary-gola-central-free-medical-camp-152-beneficiaries \u001b[32m200\u001b[0m 116.658 ms - -\u001b[0m","timestamp":"2025-11-20T14:39:24.180Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/related?category=National&slug=rotary-gola-central-free-medical-camp-152-beneficiaries&lang=hi&limit=6 \u001b[32m204\u001b[0m 0.255 ms - 0\u001b[0m","timestamp":"2025-11-20T14:39:24.188Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/related?category=National&slug=rotary-gola-central-free-medical-camp-152-beneficiaries&lang=hi&limit=6 \u001b[32m200\u001b[0m 83.785 ms - -\u001b[0m","timestamp":"2025-11-20T14:39:24.285Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/admin/all \u001b[32m204\u001b[0m 0.240 ms - 0\u001b[0m","timestamp":"2025-11-20T14:41:04.286Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/auth/subscribers \u001b[32m204\u001b[0m 0.164 ms - 0\u001b[0m","timestamp":"2025-11-20T14:41:06.343Z"}
+{"level":"info","message":"\u001b[0mGET /api/auth/subscribers \u001b[32m200\u001b[0m 80.151 ms - -\u001b[0m","timestamp":"2025-11-20T14:41:06.426Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/admin/all \u001b[32m200\u001b[0m 2051.751 ms - -\u001b[0m","timestamp":"2025-11-20T14:41:06.486Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/admin/all \u001b[32m204\u001b[0m 0.117 ms - 0\u001b[0m","timestamp":"2025-11-20T14:41:10.373Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/admin/all \u001b[32m200\u001b[0m 1517.245 ms - -\u001b[0m","timestamp":"2025-11-20T14:41:10.515Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/admin/all \u001b[32m200\u001b[0m 1573.596 ms - -\u001b[0m","timestamp":"2025-11-20T14:41:12.199Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/admin/all \u001b[32m204\u001b[0m 0.102 ms - 0\u001b[0m","timestamp":"2025-11-20T14:41:24.164Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/admin/all \u001b[32m200\u001b[0m 1601.020 ms - -\u001b[0m","timestamp":"2025-11-20T14:41:25.901Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/admin/all \u001b[32m200\u001b[0m 1564.042 ms - -\u001b[0m","timestamp":"2025-11-20T14:41:27.579Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/admin/all \u001b[32m204\u001b[0m 0.296 ms - 0\u001b[0m","timestamp":"2025-11-20T14:41:32.607Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/admin/all \u001b[32m200\u001b[0m 1544.647 ms - -\u001b[0m","timestamp":"2025-11-20T14:41:34.290Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/auth/editors \u001b[32m204\u001b[0m 0.083 ms - 0\u001b[0m","timestamp":"2025-11-20T14:41:36.885Z"}
+{"level":"info","message":"\u001b[0mGET /api/auth/editors \u001b[32m200\u001b[0m 79.316 ms - 720\u001b[0m","timestamp":"2025-11-20T14:41:36.967Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/admin/all \u001b[32m204\u001b[0m 0.304 ms - 0\u001b[0m","timestamp":"2025-11-20T14:41:46.796Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/admin/all \u001b[32m200\u001b[0m 1811.073 ms - -\u001b[0m","timestamp":"2025-11-20T14:41:48.744Z"}
