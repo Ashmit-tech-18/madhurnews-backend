@@ -119,26 +119,29 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ===========================================================================
-// 🔥 MAGIC ROUTE: WhatsApp/Facebook Preview Fix (CANONICAL & SLUG CLEANUP ADDED) 🔥
+// 🔥 MAGIC ROUTE: Fixed for Language + Image Preview + Loop Break 🔥
 // ===========================================================================
 app.get('/article/:slug', async (req, res, next) => {
     
     const userAgent = req.headers['user-agent'] || '';
     
-    // FIX 1: URL से Query Parameters हटाकर Clean Slug निकालना
-    const originalUrlPath = req.originalUrl.split('?')[0]; // e.g., /article/slug
-    const cleanSlug = originalUrlPath.split('/').pop(); // e.g., slug
+    // 1. Clean Slug for DB Query (Ignore ?lang=hi, ?r=1 etc.)
+    // req.params.slug express automatically cleans query params
+    const cleanSlug = req.params.slug; 
 
-    // Bots Detection (WhatsApp, FB, Twitter, etc.)
+    // 2. Prepare Query Params for Redirect (Preserve lang=hi, add r=1)
+    // Existing query uthao (e.g., { lang: 'hi' })
+    const queryParams = new URLSearchParams(req.query);
+    // Magic parameter add karo loop todne ke liye
+    queryParams.set('r', '1'); 
+    
+    // Bots Detection
     const isBot = /facebookexternalhit|twitterbot|whatsapp|linkedinbot|telegrambot/i.test(userAgent);
 
     try {
-        // Database Query अब Clean Slug का उपयोग करेगी
         const article = await Article.findOne({ slug: cleanSlug });
 
-        // अगर Article नहीं मिला
         if (!article) {
-            // Bot को 404 दें, ताकि वह Homepage Canonical टैग न पढ़े
             return isBot ? res.status(404).send('Article not found') : res.redirect('https://indiajagran.com');
         }
 
@@ -153,11 +156,13 @@ app.get('/article/:slug', async (req, res, next) => {
             image = `${baseUrl}${image.startsWith('/') ? '' : '/'}${image}`;
         }
 
-        // Final Clean URLs
-        const frontendUrl = `${baseUrl}/article/${cleanSlug}`; 
-        const canonicalUrl = `${baseUrl}/article/${cleanSlug}`; // Use clean slug for canonical
+        // Final URLs
+        // Frontend URL me saare query params wapis jod do (?r=1&lang=hi)
+        const frontendUrl = `${baseUrl}/article/${cleanSlug}?${queryParams.toString()}`;
+        
+        // Canonical URL clean hona chahiye (No params) SEO ke liye
+        const canonicalUrl = `${baseUrl}/article/${cleanSlug}`;
 
-        // Agar Bot hai -> HTML bhejo (Preview ke liye)
         if (isBot) {
             const html = `
                 <!DOCTYPE html>
@@ -168,7 +173,7 @@ app.get('/article/:slug', async (req, res, next) => {
                     <meta property="og:title" content="${title}" />
                     <meta property="og:description" content="${summary}" />
                     <meta property="og:image" content="${image}" />
-                    <meta property="og:url" content="${frontendUrl}" />
+                    <meta property="og:url" content="${canonicalUrl}" />
                     <meta property="og:site_name" content="India Jagran" />
                     
                     <link rel="canonical" href="${canonicalUrl}" /> 
@@ -183,12 +188,11 @@ app.get('/article/:slug', async (req, res, next) => {
             return res.send(html);
         }
 
-        // Agar Insaan hai -> React App par bhejo
-        return res.redirect(`${frontendUrl}?r=1`);
+        // Agar Insaan hai -> Redirect with ALL params (r=1 + lang=hi)
+        return res.redirect(frontendUrl);
 
     } catch (error) {
-        // Crash होने पर Logs में Error दें
-        console.error('Magic Route Execution Failed:', error);
+        console.error('Magic Route Error:', error);
         return res.redirect('https://indiajagran.com');
     }
 });
