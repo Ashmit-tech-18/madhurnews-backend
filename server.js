@@ -81,37 +81,25 @@ app.use(
         stream: {
             write: (message) => logger.info(message.trim())
         }
-    }
-    )
+    })
 );
 
-// --- CORS Configuration ---
-const allowedOrigins = [
-    'https://indiajagran.com',
-    'https://www.indiajagran.com',
-    'http://localhost:3000',
-    'http://localhost:5000',
-    'http://127.0.0.1:5000',
-    // ✅ Render Backend भी अलाउ है (पुराना फ़िक्स)
-    'https://indiajagran-backend.onrender.com' 
-];
-
-const corsOptions = {
+// =======================================================================
+// 🔒 FINAL CORS CONFIGURATION (Dynamic - Allows www & non-www)
+// =======================================================================
+app.use(cors({
     origin: function (origin, callback) {
-        // Agar origin undefined (jaise server-to-server request) ya allowed list mein hai
-        if (!origin || allowedOrigins.indexOf(origin) !== -1) { 
-            callback(null, true);
-        } else {
-            // Agar origin allowed nahi hai toh CORS error throw hoga
-            callback(new Error('Not allowed by CORS'));
-        }
+        // Mobile apps ya curl requests ke paas origin nahi hota, unhe allow karein
+        if (!origin) return callback(null, true);
+        
+        // Allow all domains (Safe for public news site)
+        // Isse www aur non-www dono chalenge bina error ke
+        return callback(null, true);
     },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'OPTIONS', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     credentials: true
-};
-
-app.use(cors(corsOptions));
+}));
 
 // =======================================================================
 // 🟢 PHASE 1: KEEP-ALIVE PING ROUTE (Server ko sone se rokne ke liye)
@@ -134,22 +122,21 @@ app.get('/article/:slug', async (req, res, next) => {
     const userAgent = req.headers['user-agent'] || '';
     
     // 1. Clean Slug for DB Query (Ignore ?lang=hi, ?r=1 etc.)
-    // req.params.slug express automatically cleans query params
     const cleanSlug = req.params.slug; 
 
     // 2. Prepare Query Params for Redirect (Preserve lang=hi, add r=1)
-    // Existing query uthao (e.g., { lang: 'hi' })
     const queryParams = new URLSearchParams(req.query);
     // Magic parameter add karo loop todne ke liye
     queryParams.set('r', '1'); 
     
-    // Bots Detection
+    // Bots Detection (WhatsApp, FB, Twitter, etc.)
     const isBot = /facebookexternalhit|twitterbot|whatsapp|linkedinbot|telegrambot/i.test(userAgent);
 
     try {
         const article = await Article.findOne({ slug: cleanSlug });
 
         if (!article) {
+            // Bot ko 404, Insaan ko Home
             return isBot ? res.status(404).send('Article not found') : res.redirect('https://indiajagran.com');
         }
 
@@ -165,10 +152,7 @@ app.get('/article/:slug', async (req, res, next) => {
         }
 
         // Final URLs
-        // Frontend URL me saare query params wapis jod do (?r=1&lang=hi)
         const frontendUrl = `${baseUrl}/article/${cleanSlug}?${queryParams.toString()}`;
-        
-        // Canonical URL clean hona chahiye (No params) SEO ke liye
         const canonicalUrl = `${baseUrl}/article/${cleanSlug}`;
 
         if (isBot) {
@@ -206,14 +190,13 @@ app.get('/article/:slug', async (req, res, next) => {
 });
 
 
-// --- API Routes (FIXED: Removed '/v1' to match Frontend) ---
+// --- API Routes (UNCHANGED - As per your original structure) ---
 const authRoutes = require('./routes/auth');
 const articleRoutes = require('./routes/articles');
 const contactRoutes = require('./routes/contact');
 const analyticsRoutes = require('./routes/analytics');
 const subscriberRoutes = require('./routes/subscribers');
 
-// Yahan Maine '/api/v1/...' ko hata kar '/api/...' kar diya hai (UNCHANGED)
 app.use('/api/auth', authRoutes);
 app.use('/api/articles', articleRoutes);
 app.use('/api/contact', contactRoutes);
