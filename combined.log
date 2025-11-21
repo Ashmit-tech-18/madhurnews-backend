@@ -3351,3 +3351,4 @@
 {"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m204\u001b[0m 0.209 ms - 0\u001b[0m","timestamp":"2025-11-21T05:15:59.034Z"}
 {"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 2158.555 ms - -\u001b[0m","timestamp":"2025-11-21T05:16:01.350Z"}
 {"level":"info","message":"\u001b[0mGET /article/nayi-sarkar-nitish-10th-shapath-kanto-ki-sej?lang=hi \u001b[32m200\u001b[0m 52.301 ms - 2031\u001b[0m","timestamp":"2025-11-21T05:20:39.833Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-21T08:56:14.592Z"}

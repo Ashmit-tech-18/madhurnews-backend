@@ -105,8 +105,10 @@ const createArticle = async (req, res) => {
 const getArticles = async (req, res) => {
     try {
         const articles = await Article.find({ 
-            $or: [{ status: 'published' }, { status: { $exists: false } }] 
-        }).sort({ createdAt: -1 });
+    $or: [{ status: 'published' }, { status: { $exists: false } }] 
+})
+.sort({ createdAt: -1 })
+.select('-content_en -content_hi');
         res.json(articles);
     } catch (err) { res.status(500).send('Server Error'); }
 };
@@ -283,7 +285,11 @@ const getArticlesByCategory = async (req, res) => {
             ]
         };
 
-        let articles = await Article.find(finalQuery).sort({ createdAt: -1 }).limit(300);
+
+        let articles = await Article.find(finalQuery)
+        .sort({ createdAt: -1 })
+        .limit(300)
+        .select('-content_en -content_hi'); // 🔥 Huge Speed Boost here
 
         if (articles.length === 0 && !subcategory && !district && process.env.GNEWS_API_KEY) {
             res.json([]); 
@@ -330,7 +336,10 @@ const getRelatedArticles = async (req, res) => {
             });
         }
         
-        const articles = await Article.find({ $and: queryCriteria }).sort({ createdAt: -1 }).limit(limitNum);
+        const articles = await Article.find({ $and: queryCriteria })
+        .sort({ createdAt: -1 })
+        .limit(limitNum)
+        .select('-content_en -content_hi');
         res.json(articles);
     } catch (error) { 
         console.error("Related Articles Error:", error);
@@ -370,7 +379,10 @@ const getTopNews = async (req, res) => {
             });
         }
 
-        const articles = await Article.find({ $and: queryCriteria }).sort({ createdAt: -1 }).limit(6); 
+        const articles = await Article.find({ $and: queryCriteria })
+        .sort({ createdAt: -1 })
+        .limit(6)
+        .select('-content_en -content_hi');
         res.status(200).json(articles);
     } catch (error) { 
         console.error("Top News Error:", error);
@@ -390,7 +402,10 @@ const searchArticles = async (req, res) => {
                 { summary_en: { $regex: searchRegex } }, { summary_hi: { $regex: searchRegex } },
                 { longHeadline: { $regex: searchRegex } }, { district: { $regex: searchRegex } }
             ]
-        }).sort({ createdAt: -1 }).limit(20);
+        })
+            .sort({ createdAt: -1 })
+            .limit(20)
+            .select('-content_en -content_hi');
         res.status(200).json(articles); 
     } catch (err) { res.status(200).json([]); }
 };
