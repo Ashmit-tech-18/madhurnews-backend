@@ -114,7 +114,7 @@ const getArticles = async (req, res) => {
 };
 
 // ---------------------------------------------------------
-// SMART HOME FEED (🔥 FIXED: STRICT SEPARATION)
+// SMART HOME FEED (🔥 FIXED: Main Story Exception + Strict Separation)
 // ---------------------------------------------------------
 const getHomeFeed = async (req, res) => {
     try {
@@ -128,15 +128,14 @@ const getHomeFeed = async (req, res) => {
         let langQuery = {};
 
         if (lang === 'hi') {
-            // Hindi Mode: Show if ANY title field has Hindi
+            // Hindi Mode
             langQuery.$or = [
                 { longHeadline: { $regex: hindiRegex } },
                 { title_en: { $regex: hindiRegex } },
                 { shortHeadline: { $regex: hindiRegex } }
             ];
         } else {
-            // 🔥 FIX APPLIED HERE: STRICT English Filter
-            // Check ALL title fields to ensure NO Hindi characters exist
+            // English Strict Mode
             langQuery.$and = [
                 { longHeadline: { $not: { $regex: hindiRegex } } },
                 { title_en: { $not: { $regex: hindiRegex } } },
@@ -147,18 +146,30 @@ const getHomeFeed = async (req, res) => {
         const queries = [];
         const baseStatusQuery = { $or: [{ status: 'published' }, { status: { $exists: false } }] };
 
-        // 1. Latest 20 Mixed Articles (Filtered)
+        // 🔥 1. MAIN STORY (Top 1) - Content Allowed (Exception)
         queries.push(
              Article.find({ 
                  $and: [ baseStatusQuery, langQuery ] 
              })
             .sort({ createdAt: -1 })
-            .limit(20)
-            .select('-content_en -content_hi -keywords')
+            .limit(1)
+            .select('-keywords') // Keywords hatao, lekin CONTENT aur SUMMARY aane do
             .lean()
         );
 
-        // 2. Category Specific (Filtered)
+        // 🔥 2. REMAINING LATEST (Next 19) - Optimized (No Content, but Summary is KEPT)
+        queries.push(
+             Article.find({ 
+                 $and: [ baseStatusQuery, langQuery ] 
+             })
+            .sort({ createdAt: -1 })
+            .skip(1)
+            .limit(19)
+            .select('-content_en -content_hi -keywords') // Content hatao, Summary apne aap aayegi
+            .lean()
+        );
+
+        // 3. Category Specific (Filtered & Optimized)
         categoriesToFetch.forEach(cat => {
             let catQuery = {};
             const key = Object.keys(categoryEquivalents).find(k => 
@@ -178,15 +189,18 @@ const getHomeFeed = async (req, res) => {
                 })
                 .sort({ createdAt: -1 })
                 .limit(6)
-                .select('-content_en -content_hi -keywords')
+                .select('-content_en -content_hi -keywords') // Content hatao, Summary aayegi
                 .lean()
             );
         });
 
         const results = await Promise.all(queries);
         let allFetchedArticles = results.flat();
+        
+        // Duplicates remove karein
         const uniqueArticlesMap = new Map();
         allFetchedArticles.forEach(article => uniqueArticlesMap.set(article._id.toString(), article));
+        
         res.json(Array.from(uniqueArticlesMap.values()));
 
     } catch (err) {
@@ -412,7 +426,27 @@ const searchArticles = async (req, res) => {
 
 // --- ADMIN & UTILS EXPORTS ---
 const uploadImage = async (req, res) => { if (!req.file) return res.status(400).send('No file uploaded.'); res.status(200).json({ filePath: req.file.path }); };
-const getAdminArticles = async (req, res) => { try { const articles = await Article.find().sort({ createdAt: -1 }); res.json(articles); } catch (err) { res.status(500).send('Server Error'); } };
+
+
+// ---------------------------------------------------------
+// ADMIN: GET ALL ARTICLES (Optimized)
+// ---------------------------------------------------------
+const getAdminArticles = async (req, res) => {
+    try {
+        const articles = await Article.find()
+            .sort({ createdAt: -1 })
+            // 🔥 OPTIMIZATION: Heavy fields ko exclude kar diya
+            // Hum content, summary, keywords aur gallery images nahi mangwa rahe
+            .select('-content_en -content_hi -summary_en -summary_hi -keywords -galleryImages'); 
+            
+        res.json(articles);
+    } catch (err) {
+        console.error("Admin Fetch Error:", err);
+        res.status(500).send('Server Error');
+    }
+};
+
+
 const updateArticleStatus = async (req, res) => { try { const { status } = req.body; const article = await Article.findByIdAndUpdate(req.params.id, { status: status }, { new: true }); if (!article) return res.status(404).json({ msg: 'Article not found' }); res.json(article); } catch (err) { res.status(500).send('Server Error'); } };
 const updateArticle = async (req, res) => { try { let updateData = { ...req.body }; if (req.file && req.file.path) { updateData.featuredImage = req.file.path; } let article = await Article.findById(req.params.id); if (!article) return res.status(404).json({ msg: 'Article not found' }); article = await Article.findByIdAndUpdate(req.params.id, { $set: updateData }, { new: true }); res.json(article); } catch (err) { res.status(500).send('Server Error'); } };
 const deleteArticle = async (req, res) => { try { await Article.findByIdAndDelete(req.params.id); res.json({ msg: 'Article removed' }); } catch (err) { res.status(500).send('Server Error'); } };
