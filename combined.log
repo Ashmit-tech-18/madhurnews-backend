@@ -3334,3 +3334,6 @@
 {"level":"info","message":"\u001b[0mGET /api/auth/editors \u001b[32m200\u001b[0m 79.316 ms - 720\u001b[0m","timestamp":"2025-11-20T14:41:36.967Z"}
 {"level":"info","message":"\u001b[0mOPTIONS /api/articles/admin/all \u001b[32m204\u001b[0m 0.304 ms - 0\u001b[0m","timestamp":"2025-11-20T14:41:46.796Z"}
 {"level":"info","message":"\u001b[0mGET /api/articles/admin/all \u001b[32m200\u001b[0m 1811.073 ms - -\u001b[0m","timestamp":"2025-11-20T14:41:48.744Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-21T05:07:26.667Z"}
+{"level":"info","message":"Sitemap generation request received.","timestamp":"2025-11-21T05:12:20.838Z"}
+{"level":"info","message":"Sitemap generated successfully.","timestamp":"2025-11-21T05:12:21.610Z"}

@@ -119,21 +119,26 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ===========================================================================
-// 🔥 MAGIC ROUTE: WhatsApp/Facebook Preview Fix (CANONICAL ADDED) 🔥
+// 🔥 MAGIC ROUTE: WhatsApp/Facebook Preview Fix (CANONICAL & SLUG CLEANUP ADDED) 🔥
 // ===========================================================================
 app.get('/article/:slug', async (req, res, next) => {
-    // ... [No changes made to this route] ...
-    const userAgent = req.headers['user-agent'] || '';
-    const { slug } = req.params;
     
+    const userAgent = req.headers['user-agent'] || '';
+    
+    // FIX 1: URL से Query Parameters हटाकर Clean Slug निकालना
+    const originalUrlPath = req.originalUrl.split('?')[0]; // e.g., /article/slug
+    const cleanSlug = originalUrlPath.split('/').pop(); // e.g., slug
+
     // Bots Detection (WhatsApp, FB, Twitter, etc.)
     const isBot = /facebookexternalhit|twitterbot|whatsapp|linkedinbot|telegrambot/i.test(userAgent);
 
     try {
-        const article = await Article.findOne({ slug });
+        // Database Query अब Clean Slug का उपयोग करेगी
+        const article = await Article.findOne({ slug: cleanSlug });
 
+        // अगर Article नहीं मिला
         if (!article) {
-            // Agar bot hai to 404, insaan hai to Home Page
+            // Bot को 404 दें, ताकि वह Homepage Canonical टैग न पढ़े
             return isBot ? res.status(404).send('Article not found') : res.redirect('https://indiajagran.com');
         }
 
@@ -141,15 +146,16 @@ app.get('/article/:slug', async (req, res, next) => {
         const title = article.longHeadline || article.title || 'India Jagran';
         const summary = (article.summary || article.content || '').replace(/<[^>]*>?/gm, '').substring(0, 160) + '...';
         
-        let image = article.featuredImage || 'https://indiajagran.com/logo192.png';
+        const baseUrl = process.env.FRONTEND_URL || 'https://www.indiajagran.com';
+        
+        let image = article.featuredImage || `${baseUrl}/logo192.png`;
         if (image && !image.startsWith('http')) {
-            image = `https://indiajagran.com${image.startsWith('/') ? '' : '/'}${image}`;
+            image = `${baseUrl}${image.startsWith('/') ? '' : '/'}${image}`;
         }
 
-        const frontendUrl = `https://indiajagran.com/article/${slug}`;
-        
-        // 🔥 NEW: Define Canonical URL for SEO Fix
-        const canonicalUrl = `https://www.indiajagran.com/article/${slug}`;
+        // Final Clean URLs
+        const frontendUrl = `${baseUrl}/article/${cleanSlug}`; 
+        const canonicalUrl = `${baseUrl}/article/${cleanSlug}`; // Use clean slug for canonical
 
         // Agar Bot hai -> HTML bhejo (Preview ke liye)
         if (isBot) {
@@ -181,7 +187,8 @@ app.get('/article/:slug', async (req, res, next) => {
         return res.redirect(frontendUrl);
 
     } catch (error) {
-        console.error('Magic Route Error:', error);
+        // Crash होने पर Logs में Error दें
+        console.error('Magic Route Execution Failed:', error);
         return res.redirect('https://indiajagran.com');
     }
 });
