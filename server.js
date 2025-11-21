@@ -184,7 +184,7 @@ app.get('/article/:slug', async (req, res, next) => {
         }
 
         // Agar Insaan hai -> React App par bhejo
-        return res.redirect(frontendUrl);
+        return res.redirect(`${frontendUrl}?r=1`);
 
     } catch (error) {
         // Crash होने पर Logs में Error दें

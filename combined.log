@@ -3337,3 +3337,17 @@
 {"level":"info","message":"Server running on port 5000","timestamp":"2025-11-21T05:07:26.667Z"}
 {"level":"info","message":"Sitemap generation request received.","timestamp":"2025-11-21T05:12:20.838Z"}
 {"level":"info","message":"Sitemap generated successfully.","timestamp":"2025-11-21T05:12:21.610Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m204\u001b[0m 8.047 ms - 0\u001b[0m","timestamp":"2025-11-21T05:13:54.563Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 2262.342 ms - -\u001b[0m","timestamp":"2025-11-21T05:13:57.055Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m204\u001b[0m 0.185 ms - 0\u001b[0m","timestamp":"2025-11-21T05:14:07.269Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 2199.307 ms - -\u001b[0m","timestamp":"2025-11-21T05:14:09.622Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/slug/nayi-sarkar-nitish-10th-shapath-kanto-ki-sej \u001b[32m204\u001b[0m 0.197 ms - 0\u001b[0m","timestamp":"2025-11-21T05:14:29.666Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/slug/nayi-sarkar-nitish-10th-shapath-kanto-ki-sej \u001b[32m200\u001b[0m 104.876 ms - -\u001b[0m","timestamp":"2025-11-21T05:14:29.779Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/top-news?lang=hi&exclude=nayi-sarkar-nitish-10th-shapath-kanto-ki-sej \u001b[32m204\u001b[0m 0.143 ms - 0\u001b[0m","timestamp":"2025-11-21T05:14:29.784Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/top-news?lang=hi&exclude=nayi-sarkar-nitish-10th-shapath-kanto-ki-sej \u001b[32m200\u001b[0m 163.967 ms - -\u001b[0m","timestamp":"2025-11-21T05:14:29.954Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/related?category=National&slug=nayi-sarkar-nitish-10th-shapath-kanto-ki-sej&lang=hi&limit=6 \u001b[32m204\u001b[0m 0.136 ms - 0\u001b[0m","timestamp":"2025-11-21T05:14:29.958Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/related?category=National&slug=nayi-sarkar-nitish-10th-shapath-kanto-ki-sej&lang=hi&limit=6 \u001b[32m200\u001b[0m 82.974 ms - -\u001b[0m","timestamp":"2025-11-21T05:14:30.045Z"}
+{"level":"info","message":"\u001b[0mGET /article/nayi-sarkar-nitish-10th-shapath-kanto-ki-sej \u001b[36m302\u001b[0m 49.268 ms - 109\u001b[0m","timestamp":"2025-11-21T05:15:06.008Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m204\u001b[0m 0.209 ms - 0\u001b[0m","timestamp":"2025-11-21T05:15:59.034Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 2158.555 ms - -\u001b[0m","timestamp":"2025-11-21T05:16:01.350Z"}
+{"level":"info","message":"\u001b[0mGET /article/nayi-sarkar-nitish-10th-shapath-kanto-ki-sej?lang=hi \u001b[32m200\u001b[0m 52.301 ms - 2031\u001b[0m","timestamp":"2025-11-21T05:20:39.833Z"}
