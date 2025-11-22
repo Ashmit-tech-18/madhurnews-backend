@@ -100,21 +100,30 @@ const createArticle = async (req, res) => {
 };
 
 // ---------------------------------------------------------
-// 2. GET ARTICLES
+// 2. GET ARTICLES (🔥 RESTORED: NO LIMIT, ONLY OPTIMIZATION)
 // ---------------------------------------------------------
 const getArticles = async (req, res) => {
     try {
+        // 🚨 CRITICAL RESTORE: Removing 'limit' and 'skip'
+        // Frontend needs ALL articles to filter categories locally.
+        
         const articles = await Article.find({ 
-    $or: [{ status: 'published' }, { status: { $exists: false } }] 
-})
-.sort({ createdAt: -1 })
-.select('-content_en -content_hi');
+            $or: [{ status: 'published' }, { status: { $exists: false } }] 
+        })
+        .sort({ createdAt: -1 })
+        // ✅ Optimization Kept: We exclude the HEAVY content body.
+        // This reduces size from 1MB -> ~50KB without breaking layout.
+        .select('-content_en -content_hi'); 
+
         res.json(articles);
-    } catch (err) { res.status(500).send('Server Error'); }
+    } catch (err) { 
+        console.error("Get Articles Error:", err);
+        res.status(500).send('Server Error'); 
+    }
 };
 
 // ---------------------------------------------------------
-// SMART HOME FEED (🔥 FINAL FIX: Main Story Exception + Strict Filtering)
+// SMART HOME FEED
 // ---------------------------------------------------------
 const getHomeFeed = async (req, res) => {
     try {
@@ -128,22 +137,17 @@ const getHomeFeed = async (req, res) => {
         let langQuery = {};
 
         if (lang === 'hi') {
-            // Hindi Mode: Show if ANY title field has Hindi
             langQuery.$or = [
                 { longHeadline: { $regex: hindiRegex } },
                 { title_en: { $regex: hindiRegex } },
                 { shortHeadline: { $regex: hindiRegex } },
-                { title: { $regex: hindiRegex } } // Legacy check included
+                { title: { $regex: hindiRegex } }
             ];
         } else {
-            // 🔥 ENGLISH STRICT MODE
-            // Check ALL title fields to ensure NO Hindi characters exist
             langQuery.$and = [
                 { longHeadline: { $not: { $regex: hindiRegex } } },
                 { title_en: { $not: { $regex: hindiRegex } } },
                 { shortHeadline: { $not: { $regex: hindiRegex } } },
-                
-                // ✅ CRITICAL FIX: Legacy title bhi Hindi nahi hona chahiye
                 { title: { $not: { $regex: hindiRegex } } } 
             ];
         }
@@ -151,32 +155,30 @@ const getHomeFeed = async (req, res) => {
         const queries = [];
         const baseStatusQuery = { $or: [{ status: 'published' }, { status: { $exists: false } }] };
 
-        // 🔥 1. MAIN STORY (Top 1) - Content Allowed (Exception)
-        // Isme humne '.select' me content ko minus (-) nahi kiya hai.
+        // 1. MAIN STORY (Content Allowed)
         queries.push(
              Article.find({ 
                  $and: [ baseStatusQuery, langQuery ] 
              })
             .sort({ createdAt: -1 })
-            .limit(1) // Sirf pehla article
-            .select('-keywords') // Sirf keywords hatao, CONTENT aur SUMMARY aane do
+            .limit(1)
+            .select('-keywords')
             .lean()
         );
 
-        // 🔥 2. REMAINING LATEST (Next 19) - Optimized (No Content)
-        // Content hata diya gaya hai speed ke liye, lekin Summary aayegi
+        // 2. REMAINING LATEST (Content Excluded)
         queries.push(
              Article.find({ 
                  $and: [ baseStatusQuery, langQuery ] 
              })
             .sort({ createdAt: -1 })
-            .skip(1)  // Pehla wala skip karo (kyunki wo upar le liya)
+            .skip(1)
             .limit(19)
-            .select('-content_en -content_hi -keywords') // Content Excluded
+            .select('-content_en -content_hi -keywords') 
             .lean()
         );
 
-        // 3. Category Specific (Filtered & Optimized)
+        // 3. Category Specific
         categoriesToFetch.forEach(cat => {
             let catQuery = {};
             const key = Object.keys(categoryEquivalents).find(k => 
@@ -196,7 +198,7 @@ const getHomeFeed = async (req, res) => {
                 })
                 .sort({ createdAt: -1 })
                 .limit(6)
-                .select('-content_en -content_hi -keywords') // Content Excluded
+                .select('-content_en -content_hi -keywords') 
                 .lean()
             );
         });
@@ -204,7 +206,6 @@ const getHomeFeed = async (req, res) => {
         const results = await Promise.all(queries);
         let allFetchedArticles = results.flat();
         
-        // Duplicates remove karein
         const uniqueArticlesMap = new Map();
         allFetchedArticles.forEach(article => uniqueArticlesMap.set(article._id.toString(), article));
         
@@ -240,7 +241,6 @@ const getArticleBySlug = async (req, res) => {
     } catch (err) { res.status(500).send('Server Error'); }
 };
 
-// 🔥 FIXED: Category Logic
 const getArticlesByCategory = async (req, res) => {
     try {
         const { category, subcategory, district } = req.params;
@@ -279,7 +279,6 @@ const getArticlesByCategory = async (req, res) => {
             if (district) catFilter.district = createSmartRegex(district.replace(/-/g, ' '));
         }
 
-        // Language Filter
         const hindiRegex = getHindiRegex();
         let langQuery = {};
         if (lang === 'hi') {
@@ -290,7 +289,6 @@ const getArticlesByCategory = async (req, res) => {
                 { category: { $regex: hindiRegex } }
             ];
         } else {
-            // English Strict Filter for Categories too
             langQuery.$and = [
                 { longHeadline: { $not: { $regex: hindiRegex } } },
                 { title_en: { $not: { $regex: hindiRegex } } },
@@ -310,7 +308,7 @@ const getArticlesByCategory = async (req, res) => {
         let articles = await Article.find(finalQuery)
         .sort({ createdAt: -1 })
         .limit(300)
-        .select('-content_en -content_hi'); // 🔥 Huge Speed Boost here
+        .select('-content_en -content_hi'); 
 
         if (articles.length === 0 && !subcategory && !district && process.env.GNEWS_API_KEY) {
             res.json([]); 
@@ -324,7 +322,6 @@ const getArticlesByCategory = async (req, res) => {
     }
 };
 
-// 🔥 FIXED: Related Articles
 const getRelatedArticles = async (req, res) => {
     try {
         const { category, slug, lang, limit } = req.query;
@@ -347,7 +344,6 @@ const getRelatedArticles = async (req, res) => {
                 ]
             });
         } else {
-            // English Strict
              queryCriteria.push({
                 $and: [
                     { longHeadline: { $not: { $regex: hindiRegex } } },
@@ -368,7 +364,6 @@ const getRelatedArticles = async (req, res) => {
     }
 };
 
-// 🔥 FIXED: Top News
 const getTopNews = async (req, res) => {
     try {
         const { lang, exclude } = req.query; 
@@ -390,7 +385,6 @@ const getTopNews = async (req, res) => {
                 ]
             });
         } else {
-            // English Strict
              queryCriteria.push({
                 $and: [
                     { longHeadline: { $not: { $regex: hindiRegex } } },
@@ -431,28 +425,19 @@ const searchArticles = async (req, res) => {
     } catch (err) { res.status(200).json([]); }
 };
 
-// --- ADMIN & UTILS EXPORTS ---
 const uploadImage = async (req, res) => { if (!req.file) return res.status(400).send('No file uploaded.'); res.status(200).json({ filePath: req.file.path }); };
 
-
-// ---------------------------------------------------------
-// ADMIN: GET ALL ARTICLES (Optimized)
-// ---------------------------------------------------------
 const getAdminArticles = async (req, res) => {
     try {
         const articles = await Article.find()
             .sort({ createdAt: -1 })
-            // 🔥 OPTIMIZATION: Heavy fields ko exclude kar diya
-            // Hum content, summary, keywords aur gallery images nahi mangwa rahe
             .select('-content_en -content_hi -summary_en -summary_hi -keywords -galleryImages'); 
-            
         res.json(articles);
     } catch (err) {
         console.error("Admin Fetch Error:", err);
         res.status(500).send('Server Error');
     }
 };
-
 
 const updateArticleStatus = async (req, res) => { try { const { status } = req.body; const article = await Article.findByIdAndUpdate(req.params.id, { status: status }, { new: true }); if (!article) return res.status(404).json({ msg: 'Article not found' }); res.json(article); } catch (err) { res.status(500).send('Server Error'); } };
 const updateArticle = async (req, res) => { try { let updateData = { ...req.body }; if (req.file && req.file.path) { updateData.featuredImage = req.file.path; } let article = await Article.findById(req.params.id); if (!article) return res.status(404).json({ msg: 'Article not found' }); article = await Article.findByIdAndUpdate(req.params.id, { $set: updateData }, { new: true }); res.json(article); } catch (err) { res.status(500).send('Server Error'); } };
@@ -528,76 +513,46 @@ const runGNewsAutoFetch = async () => {
 
 const generateSitemap = async (req, res) => {
     try {
-        // 1. Force Headers (XML)
         res.setHeader('Content-Type', 'application/xml');
-        
-        // 2. Basic Variables
         const baseUrl = "https://www.indiajagran.com";
         const today = new Date().toISOString();
-        
-        // 3. Arrays for Storage (Faster than Streaming for < 5000 items)
         let xmlUrls = [];
-
-        // --- STATIC PAGES ---
         const staticPages = ["", "about", "contact", "privacy-policy", "terms-condition", "subscribe"];
         staticPages.forEach(page => {
             xmlUrls.push(`<url><loc>${baseUrl}/${page}</loc><lastmod>${today}</lastmod><priority>${page === "" ? "1.0" : "0.8"}</priority></url>`);
         });
-
-        // --- CATEGORIES ---
         const categories = ["national","politics","business","entertainment","sports","world","education","health","religion","crime","poetry-corner"];
         categories.forEach(cat => {
             xmlUrls.push(`<url><loc>${baseUrl}/category/${cat}</loc><lastmod>${today}</lastmod><priority>0.9</priority></url>`);
         });
-
-        // --- ARTICLES (The Safe Fetch) ---
-        // Hum sirf slug aur dates mangwayenge taaki load kam pade
         const articles = await Article.find({ status: "published" })
             .select("slug createdAt updatedAt")
             .sort({ createdAt: -1 })
-            .lean() // Mongoose Object nahi, simple JSON layega (Memory Bachat)
+            .lean() 
             .exec();
-
-        if (!articles) {
-             throw new Error("Database Query Failed (No articles returned)");
-        }
-
-        // --- LOOP & BUILD ---
+        if (!articles) { throw new Error("Database Query Failed (No articles returned)"); }
         articles.forEach(art => {
             if (art.slug) {
                 let dateStr = today;
-                
-                // Error-Free Date Logic
                 try {
                     if (art.updatedAt) dateStr = new Date(art.updatedAt).toISOString();
                     else if (art.createdAt) dateStr = new Date(art.createdAt).toISOString();
-                } catch (e) {
-                    // Date invalid hai toh ignore karein, crash na karein
-                    dateStr = today;
-                }
-
+                } catch (e) { dateStr = today; }
                 xmlUrls.push(`<url><loc>${baseUrl}/article/${art.slug}</loc><lastmod>${dateStr}</lastmod><priority>0.7</priority></url>`);
             }
         });
-
-        // 4. Final XML Assembly
         const finalXml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${xmlUrls.join('\n')}
 </urlset>`;
-
-        // 5. Send Response
         res.send(finalXml);
-
     } catch (error) {
-        // 🔥 ERROR TRAP: Agar koi galti hui, toh screen par dikhayega
         console.error("Sitemap Crash:", error);
-        res.header('Content-Type', 'text/plain'); // Error padhne layak ho
+        res.header('Content-Type', 'text/plain'); 
         res.status(500).send(`SITEMAP GENERATION FAILED.\nREASON: ${error.message}\n\nSTACK: ${error.stack}`);
     }
 };
 
-// 🔥 EXPORTS
 module.exports = {
     createArticle, getArticles, getArticleById, getArticleBySlug,
     getArticlesByCategory, getRelatedArticles, getTopNews, searchArticles,
