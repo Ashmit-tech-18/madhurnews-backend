@@ -3605,3 +3605,8 @@
 {"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m204\u001b[0m 4.198 ms - 0\u001b[0m","timestamp":"2025-11-22T12:26:16.478Z"}
 {"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 2565.592 ms - -\u001b[0m","timestamp":"2025-11-22T12:26:19.175Z"}
 {"level":"info","message":"Server running on port 5000","timestamp":"2025-11-22T12:29:29.495Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-22T13:37:20.208Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m204\u001b[0m 1.492 ms - 0\u001b[0m","timestamp":"2025-11-22T13:37:32.347Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 1658.478 ms - -\u001b[0m","timestamp":"2025-11-22T13:37:34.199Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles \u001b[32m204\u001b[0m 0.283 ms - 0\u001b[0m","timestamp":"2025-11-22T13:37:42.606Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles \u001b[32m200\u001b[0m 1435.098 ms - -\u001b[0m","timestamp":"2025-11-22T13:37:44.204Z"}

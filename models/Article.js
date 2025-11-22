@@ -69,4 +69,31 @@ const articleSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
+// ============================================================
+// 🔥 PHASE 4: DATABASE INDEXING (Speed Booster)
+// ============================================================
+
+// 1. Basic Search Fields (Fast Filtering)
+articleSchema.index({ status: 1 });              // "published" check karne ke liye
+articleSchema.index({ category: 1 });            // Category filtering ke liye
+articleSchema.index({ subcategory: 1 });         // Sub-category ke liye
+articleSchema.index({ slug: 1 });                // Slug se article dhundhne ke liye
+articleSchema.index({ createdAt: -1 });          // Sorting (Latest First) ke liye
+
+// 2. Compound Indexes (Mixed Queries)
+// Jab hum "status='published' AND category='Sports'" dhundhte hain
+articleSchema.index({ status: 1, category: 1, createdAt: -1 });
+
+// 3. Language & Title Search (Regex Performance)
+// English aur Hindi titles ko fast search karne ke liye
+articleSchema.index({ title_en: 1 });
+articleSchema.index({ title_hi: 1 });
+articleSchema.index({ longHeadline: 1 });
+articleSchema.index({ shortHeadline: 1 });
+articleSchema.index({ title: 1 }); // Legacy title support
+
+// ============================================================
+
+module.exports = mongoose.model('Article', articleSchema);
+
 module.exports = mongoose.model('Article', articleSchema);
