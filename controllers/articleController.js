@@ -115,7 +115,7 @@ const getArticles = async (req, res) => {
         // - keywords (Array of strings)
         // - galleryImages (Array of URLs)
         // - sourceUrl, kicker, user info, version keys
-        .select('-content_en -content_hi -keywords -galleryImages -sourceUrl -thumbnailCaption -user -__v -kicker'); 
+        .select('-content_en -content_hi -keywords -galleryImages -sourceUrl -thumbnailCaption -user -__v'); 
 
         res.json(articles);
     } catch (err) { 
@@ -177,7 +177,7 @@ const getHomeFeed = async (req, res) => {
             .sort({ createdAt: -1 })
             .skip(1)
             .limit(19)
-            .select('-content_en -content_hi -keywords -galleryImages -user -__v -kicker') 
+            .select('-content_en -content_hi -keywords -galleryImages -user -__v') 
             .lean()
         );
 
@@ -201,7 +201,7 @@ const getHomeFeed = async (req, res) => {
                 })
                 .sort({ createdAt: -1 })
                 .limit(12)
-                .select('-content_en -content_hi -keywords -galleryImages -user -__v -kicker') 
+                .select('-content_en -content_hi -keywords -galleryImages -user -__v')
                 .lean()
             );
         });

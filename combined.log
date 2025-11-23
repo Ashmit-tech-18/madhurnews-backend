@@ -3953,3 +3953,40 @@
 {"level":"info","message":"\u001b[0mGET /api/articles/category/world/tech?lang=en \u001b[32m200\u001b[0m 134.661 ms - -\u001b[0m","timestamp":"2025-11-23T10:06:24.455Z"}
 {"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 0.254 ms - 0\u001b[0m","timestamp":"2025-11-23T10:06:29.800Z"}
 {"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[36m304\u001b[0m 93.613 ms - -\u001b[0m","timestamp":"2025-11-23T10:06:29.897Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-23T10:40:54.146Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 8.149 ms - 0\u001b[0m","timestamp":"2025-11-23T10:41:05.105Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[32m200\u001b[0m 616.035 ms - -\u001b[0m","timestamp":"2025-11-23T10:41:05.740Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/image-1759827899787.jpg \u001b[36m304\u001b[0m 4.021 ms - -\u001b[0m","timestamp":"2025-11-23T10:41:09.632Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 0.149 ms - 0\u001b[0m","timestamp":"2025-11-23T10:41:40.139Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[32m200\u001b[0m 402.719 ms - -\u001b[0m","timestamp":"2025-11-23T10:41:40.558Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/image-1759827899787.jpg \u001b[36m304\u001b[0m 1.182 ms - -\u001b[0m","timestamp":"2025-11-23T10:41:51.739Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/image-1759831510498.jpg \u001b[36m304\u001b[0m 0.919 ms - -\u001b[0m","timestamp":"2025-11-23T10:41:59.739Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/image-1759827964858.jpg \u001b[36m304\u001b[0m 1.522 ms - -\u001b[0m","timestamp":"2025-11-23T10:41:59.758Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/image-1759827945842.jpg \u001b[36m304\u001b[0m 2.659 ms - -\u001b[0m","timestamp":"2025-11-23T10:41:59.800Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 0.182 ms - 0\u001b[0m","timestamp":"2025-11-23T10:42:32.009Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[36m304\u001b[0m 405.501 ms - -\u001b[0m","timestamp":"2025-11-23T10:42:32.417Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 0.113 ms - 0\u001b[0m","timestamp":"2025-11-23T10:44:33.057Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[36m304\u001b[0m 340.297 ms - -\u001b[0m","timestamp":"2025-11-23T10:44:33.404Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 0.089 ms - 0\u001b[0m","timestamp":"2025-11-23T10:44:36.514Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[32m200\u001b[0m 310.757 ms - -\u001b[0m","timestamp":"2025-11-23T10:44:36.839Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/image-1759827899787.jpg \u001b[36m304\u001b[0m 2.789 ms - -\u001b[0m","timestamp":"2025-11-23T10:44:37.641Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/image-1759827964858.jpg \u001b[36m304\u001b[0m 2.351 ms - -\u001b[0m","timestamp":"2025-11-23T10:44:37.642Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/image-1759827945842.jpg \u001b[36m304\u001b[0m 3.683 ms - -\u001b[0m","timestamp":"2025-11-23T10:44:37.644Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/image-1759831510498.jpg \u001b[36m304\u001b[0m 2.286 ms - -\u001b[0m","timestamp":"2025-11-23T10:44:37.646Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 0.167 ms - 0\u001b[0m","timestamp":"2025-11-23T10:47:21.021Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[32m200\u001b[0m 357.465 ms - -\u001b[0m","timestamp":"2025-11-23T10:47:21.387Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/image-1759827899787.jpg \u001b[36m304\u001b[0m 1.450 ms - -\u001b[0m","timestamp":"2025-11-23T10:47:33.619Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/image-1759831510498.jpg \u001b[36m304\u001b[0m 1.272 ms - -\u001b[0m","timestamp":"2025-11-23T10:47:35.790Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/image-1759827964858.jpg \u001b[36m304\u001b[0m 1.852 ms - -\u001b[0m","timestamp":"2025-11-23T10:47:35.822Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/image-1759827945842.jpg \u001b[36m304\u001b[0m 1.672 ms - -\u001b[0m","timestamp":"2025-11-23T10:47:35.890Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-23T10:54:47.237Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-23T10:55:46.761Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-23T10:56:06.842Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 1.389 ms - 0\u001b[0m","timestamp":"2025-11-23T10:58:22.812Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[32m200\u001b[0m 721.981 ms - -\u001b[0m","timestamp":"2025-11-23T10:58:23.544Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 0.196 ms - 0\u001b[0m","timestamp":"2025-11-23T10:58:30.988Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[32m200\u001b[0m 363.200 ms - -\u001b[0m","timestamp":"2025-11-23T10:58:31.356Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/image-1759827899787.jpg \u001b[36m304\u001b[0m 2.239 ms - -\u001b[0m","timestamp":"2025-11-23T10:58:33.970Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/image-1759831510498.jpg \u001b[36m304\u001b[0m 0.992 ms - -\u001b[0m","timestamp":"2025-11-23T10:58:34.361Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/image-1759827964858.jpg \u001b[36m304\u001b[0m 1.252 ms - -\u001b[0m","timestamp":"2025-11-23T10:58:34.377Z"}
+{"level":"info","message":"\u001b[0mGET /uploads/image-1759827945842.jpg \u001b[36m304\u001b[0m 0.657 ms - -\u001b[0m","timestamp":"2025-11-23T10:58:34.431Z"}
