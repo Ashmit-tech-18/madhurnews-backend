@@ -188,11 +188,25 @@ const getHomeFeed = async (req, res) => {
                 categoryEquivalents[k].some(c => c.toLowerCase() === cat.toLowerCase())
             );
 
-            if (key) {
+          if (key) {
                 const names = categoryEquivalents[key];
-                catQuery = { category: { $in: names.map(name => createSmartRegex(name)) } };
+                const regexList = names.map(name => createSmartRegex(name));
+                
+                // 🔥 FIX: Ab ye Category YA Subcategory dono me check karega
+                catQuery = {
+                    $or: [
+                        { category: { $in: regexList } },
+                        { subcategory: { $in: regexList } }
+                    ]
+                };
             } else {
-                catQuery = { category: createSmartRegex(cat) };
+                const regex = createSmartRegex(cat);
+                catQuery = {
+                    $or: [
+                        { category: regex },
+                        { subcategory: regex }
+                    ]
+                };
             }
 
             queries.push(
@@ -274,10 +288,21 @@ const getArticlesByCategory = async (req, res) => {
         } else {
             if (categoryKey) {
                 const names = categoryEquivalents[categoryKey];
-                catFilter.category = { $in: names.map(name => createSmartRegex(name)) };
+                const regexList = names.map(name => createSmartRegex(name));
+                
+                // 🔥 FIX: Check both Category AND Subcategory columns
+                catFilter.$or = [
+                    { category: { $in: regexList } },
+                    { subcategory: { $in: regexList } }
+                ];
             } else {
-                catFilter.category = createSmartRegex(category);
+                const regex = createSmartRegex(category);
+                catFilter.$or = [
+                    { category: regex },
+                    { subcategory: regex }
+                ];
             }
+            
             if (subcategory) catFilter.subcategory = createSmartRegex(subcategory.replace(/-/g, ' '));
             if (district) catFilter.district = createSmartRegex(district.replace(/-/g, ' '));
         }

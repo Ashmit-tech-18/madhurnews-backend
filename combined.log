@@ -3990,3 +3990,36 @@
 {"level":"info","message":"\u001b[0mGET /uploads/image-1759831510498.jpg \u001b[36m304\u001b[0m 0.992 ms - -\u001b[0m","timestamp":"2025-11-23T10:58:34.361Z"}
 {"level":"info","message":"\u001b[0mGET /uploads/image-1759827964858.jpg \u001b[36m304\u001b[0m 1.252 ms - -\u001b[0m","timestamp":"2025-11-23T10:58:34.377Z"}
 {"level":"info","message":"\u001b[0mGET /uploads/image-1759827945842.jpg \u001b[36m304\u001b[0m 0.657 ms - -\u001b[0m","timestamp":"2025-11-23T10:58:34.431Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-23T13:53:33.400Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 1.667 ms - 0\u001b[0m","timestamp":"2025-11-23T13:53:45.972Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[32m200\u001b[0m 713.980 ms - -\u001b[0m","timestamp":"2025-11-23T13:53:46.697Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-24T06:08:46.862Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-24T07:42:50.961Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 3.334 ms - 0\u001b[0m","timestamp":"2025-11-24T07:43:19.860Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[32m200\u001b[0m 939.012 ms - -\u001b[0m","timestamp":"2025-11-24T07:43:20.825Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-24T07:45:43.685Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 6.079 ms - 0\u001b[0m","timestamp":"2025-11-24T07:45:51.505Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[32m200\u001b[0m 1253.021 ms - -\u001b[0m","timestamp":"2025-11-24T07:45:52.791Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/tech?lang=en \u001b[32m204\u001b[0m 0.493 ms - 0\u001b[0m","timestamp":"2025-11-24T07:46:03.286Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/tech?lang=en \u001b[32m200\u001b[0m 182.524 ms - 2\u001b[0m","timestamp":"2025-11-24T07:46:03.477Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-11-24T07:47:57.201Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/tech?lang=en \u001b[32m204\u001b[0m 3.538 ms - 0\u001b[0m","timestamp":"2025-11-24T07:48:00.386Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/tech?lang=en \u001b[32m200\u001b[0m 319.854 ms - -\u001b[0m","timestamp":"2025-11-24T07:48:00.726Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 0.488 ms - 0\u001b[0m","timestamp":"2025-11-24T07:48:06.106Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[36m304\u001b[0m 779.661 ms - -\u001b[0m","timestamp":"2025-11-24T07:48:06.892Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/national?lang=en \u001b[32m204\u001b[0m 0.557 ms - 0\u001b[0m","timestamp":"2025-11-24T07:48:13.676Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/national?lang=en \u001b[32m200\u001b[0m 631.664 ms - -\u001b[0m","timestamp":"2025-11-24T07:48:14.342Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 0.542 ms - 0\u001b[0m","timestamp":"2025-11-24T07:48:16.763Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[36m304\u001b[0m 730.316 ms - -\u001b[0m","timestamp":"2025-11-24T07:48:17.497Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/sports?lang=en \u001b[32m204\u001b[0m 0.626 ms - 0\u001b[0m","timestamp":"2025-11-24T07:48:26.292Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/sports?lang=en \u001b[32m200\u001b[0m 494.935 ms - -\u001b[0m","timestamp":"2025-11-24T07:48:26.811Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 0.360 ms - 0\u001b[0m","timestamp":"2025-11-24T07:48:27.716Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[36m304\u001b[0m 744.766 ms - -\u001b[0m","timestamp":"2025-11-24T07:48:28.466Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/education?lang=en \u001b[32m204\u001b[0m 0.307 ms - 0\u001b[0m","timestamp":"2025-11-24T07:48:32.442Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/education?lang=en \u001b[32m200\u001b[0m 77.698 ms - -\u001b[0m","timestamp":"2025-11-24T07:48:32.534Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 0.279 ms - 0\u001b[0m","timestamp":"2025-11-24T07:48:47.943Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[36m304\u001b[0m 848.131 ms - -\u001b[0m","timestamp":"2025-11-24T07:48:48.800Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/category/crime?lang=en \u001b[32m204\u001b[0m 0.428 ms - 0\u001b[0m","timestamp":"2025-11-24T07:49:00.669Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/category/crime?lang=en \u001b[32m200\u001b[0m 102.060 ms - -\u001b[0m","timestamp":"2025-11-24T07:49:00.779Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 0.343 ms - 0\u001b[0m","timestamp":"2025-11-24T07:49:37.360Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[36m304\u001b[0m 879.510 ms - -\u001b[0m","timestamp":"2025-11-24T07:49:38.244Z"}
