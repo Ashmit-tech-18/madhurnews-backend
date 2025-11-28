@@ -71,9 +71,23 @@ const deleteUser = async (req, res) => {
 // 7. Update User (Role/Data by Admin)
 const updateUser = async (req, res) => {
     try {
-        const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true }).select('-password');
+        const { name, email, role, password } = req.body;
+        
+        // Data object banayein
+        const updateData = { name, email, role };
+
+        // Sirf tabhi hash karein agar naya password dala gaya ho
+        if (password && password.trim() !== "") {
+            const salt = await bcrypt.genSalt(10);
+            updateData.password = await bcrypt.hash(password, salt);
+        }
+
+        const user = await User.findByIdAndUpdate(req.params.id, updateData, { new: true }).select('-password');
+        
         res.status(200).json(user);
-    } catch (error) { res.status(500).json({ message: error.message }); }
+    } catch (error) { 
+        res.status(500).json({ message: error.message }); 
+    }
 };
 
 // --- SUBSCRIBERS ---
