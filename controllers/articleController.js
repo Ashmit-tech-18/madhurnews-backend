@@ -43,7 +43,7 @@ const categoryEquivalents = {
     crime: ['Crime', 'क्राइम'], 
     opinion: ['Opinion', 'विचार', 'Editorial'], 
     'uttar-pradesh': ['Uttar Pradesh', 'उत्तर प्रदेश', 'UP'],
-    'poetry-corner': ['Poetry Corner', 'Poetry', 'काव्य कोना', 'Kavya', 'Poem']
+    'poetry-corner': ['poetry-corner','Poetry Corner', 'Poetry', 'काव्य कोना', 'Kavya', 'Poem']
 };
 
 // ---------------------------------------------------------
