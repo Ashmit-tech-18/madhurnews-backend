@@ -7,6 +7,7 @@ const cron = require('node-cron');
 const path = require('path');
 
 // --- Controllers & Models ---
+// ✅ IMPORTANT: generateSitemap yahan import hai, hum iska hi use karenge
 const { generateSitemap, runGNewsAutoFetch } = require('./controllers/articleController'); 
 const Article = require('./models/Article'); 
 
@@ -32,47 +33,17 @@ const getOptimizedUrl = (url) => {
 };
 
 // =======================================================================
-// SITEMAP ROUTE
+// ✅ SITEMAP ROUTE (FIXED)
 // =======================================================================
-app.get('/api/articles/sitemap', async (req, res) => {
-    logger.info("Sitemap generation request received.");
-    try {
-        const articles = await Article.find({}, 'slug updatedAt createdAt');
-        const baseUrl = process.env.FRONTEND_URL || 'https://www.indiajagran.com';
-        
-        let sitemap = '<?xml version="1.0" encoding="UTF-8"?>';
-        sitemap += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+// Purana manual code hata diya jo galat data de raha tha.
+// Ab hum controller ka sahi logic use kar rahe hain jo sirf Published articles dega.
 
-        sitemap += `
-            <url><loc>${baseUrl}/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
-            <url><loc>${baseUrl}/about</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-            <url><loc>${baseUrl}/contact</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-        `;
+// 1. Standard Route (Google yahan check karega)
+app.get('/sitemap.xml', generateSitemap);
 
-        articles.forEach(article => {
-            let dateString = article.updatedAt ? new Date(article.updatedAt).toISOString() : new Date().toISOString(); 
-            if (article.slug) {
-                sitemap += `
-                <url>
-                    <loc>${baseUrl}/article/${article.slug}</loc>
-                    <lastmod>${dateString}</lastmod>
-                    <changefreq>weekly</changefreq>
-                    <priority>0.8</priority>
-                </url>`;
-            }
-        });
+// 2. API Route (Backup ke liye)
+app.get('/api/articles/sitemap', generateSitemap);
 
-        sitemap += '</urlset>';
-        logger.info("Sitemap generated successfully.");
-        
-        res.header('Content-Type', 'application/xml');
-        res.send(sitemap);
-
-    } catch (e) {
-        logger.error("SITEMAP ROUTE CRASH:", e);
-        res.status(500).send("Sitemap generation failed due to server error.");
-    }
-});
 
 // --- Middleware ---
 app.use(compression());
@@ -106,12 +77,12 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 // =======================================================================
-// 🧪 TEST ROUTE: Force GNews Update (Isse browser me khol kar check karein)
+// 🧪 TEST ROUTE: Force GNews Update
 // =======================================================================
 app.get('/api/force-update-news', async (req, res) => {
     try {
         console.log("Manually triggering GNews Fetch...");
-        await runGNewsAutoFetch(); // Ye function call karega
+        await runGNewsAutoFetch(); 
         res.send("✅ GNews Fetch Triggered Successfully! Check Render Logs for details.");
     } catch (error) {
         console.error("Manual Update Failed:", error);
@@ -120,7 +91,7 @@ app.get('/api/force-update-news', async (req, res) => {
 });
 
 // ===========================================================================
-// MAGIC ROUTE (Updated with Image Optimization)
+// MAGIC ROUTE (Updated with Image Optimization & WWW Fix)
 // ===========================================================================
 app.get('/article/:slug', async (req, res, next) => {
     const userAgent = req.headers['user-agent'] || '';
@@ -133,14 +104,15 @@ app.get('/article/:slug', async (req, res, next) => {
     try {
         const article = await Article.findOne({ slug: cleanSlug });
 
+        // ✅ FIX: Fallback URL se 'www' hata diya taaki redirect loop na bane
+        const baseUrl = process.env.FRONTEND_URL || 'https://indiajagran.com';
+
         if (!article) {
-            return isBot ? res.status(404).send('Article not found') : res.redirect('https://indiajagran.com');
+            return isBot ? res.status(404).send('Article not found') : res.redirect(baseUrl);
         }
 
         const title = article.longHeadline || article.title || 'India Jagran';
         const summary = (article.summary || article.content || '').replace(/<[^>]*>?/gm, '').substring(0, 160) + '...';
-        
-        const baseUrl = process.env.FRONTEND_URL || 'https://www.indiajagran.com';
         
         let image = article.featuredImage || `${baseUrl}/logo192.png`;
         
