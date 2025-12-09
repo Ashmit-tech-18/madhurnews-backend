@@ -5,6 +5,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const cron = require('node-cron');
 const path = require('path');
+const rssRoutes = require('./routes/rssRoutes');
 
 // --- Controllers & Models ---
 // ✅ IMPORTANT: generateSitemap yahan import hai, hum iska hi use karenge
@@ -40,6 +41,7 @@ const getOptimizedUrl = (url) => {
 
 // 1. Standard Route (Google yahan check karega)
 app.get('/sitemap.xml', generateSitemap);
+
 
 // 2. API Route (Backup ke liye)
 app.get('/api/articles/sitemap', generateSitemap);
@@ -157,6 +159,7 @@ app.get('/article/:slug', async (req, res, next) => {
 });
 
 // --- API Routes ---
+app.use('/api', rssRoutes);
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/articles', require('./routes/articles'));
 app.use('/api/contact', require('./routes/contact'));
