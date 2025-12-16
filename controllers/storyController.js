@@ -1,6 +1,8 @@
+// File: backend/controllers/storyController.js
+
 const WebStory = require('../models/WebStory');
 
-// 1. GET Recent Stories (For Homepage) - ✅ YE NEW HAI
+// 1. GET Recent Stories (For Homepage)
 exports.getRecentWebStories = async (req, res) => {
   try {
     // Sirf Title, Slug aur CoverImage layenge
@@ -11,12 +13,12 @@ exports.getRecentWebStories = async (req, res) => {
 
     res.json(stories);
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching recent stories:", error);
     res.status(500).json({ message: 'Error fetching stories' });
   }
 };
 
-// 2. GET Single Story (View)
+// 2. GET Single Story (View AMP Page)
 exports.getWebStoryBySlug = async (req, res) => {
   try {
     const story = await WebStory.findOne({ slug: req.params.slug });
@@ -25,9 +27,10 @@ exports.getWebStoryBySlug = async (req, res) => {
       return res.status(404).send('Story Not Found');
     }
 
-    const baseUrl = 'https://indiajagran.com';
+    const baseUrl = 'https://indiajagran.com'; // Change this if domain changes
     const storyUrl = `${baseUrl}/web-stories/${story.slug}`;
 
+    // AMP HTML Template
     const html = `
     <!doctype html>
     <html amp lang="hi">
@@ -90,37 +93,56 @@ exports.getWebStoryBySlug = async (req, res) => {
     `;
     res.send(html);
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Server Error');
+    console.error("Error generating AMP story:", error);
+    res.status(500).send('Server Error generating Story');
   }
 };
 
-// 3. CREATE Story (Admin)
+// 3. CREATE Story (Admin) - ✅ MAJOR FIXES HERE
 exports.createWebStory = async (req, res) => {
   try {
     const { title, slug, coverImage, pages } = req.body;
 
-    const existingStory = await WebStory.findOne({ slug });
-    if (existingStory) {
-      return res.status(400).json({ message: 'Slug already exists. Change the URL.' });
+    console.log("📥 Incoming Web Story Data:", { title, slug, coverImage, slidesCount: pages?.length });
+
+    // --- Validation Checks ---
+    if (!title || !slug) {
+        return res.status(400).json({ message: 'Title and Slug are required fields.' });
+    }
+    if (!coverImage) {
+        return res.status(400).json({ message: 'Cover Image is required.' });
+    }
+    if (!pages || !Array.isArray(pages) || pages.length === 0) {
+        return res.status(400).json({ message: 'At least one slide is required to create a story.' });
     }
 
+    // --- Check for Duplicate Slug ---
+    const existingStory = await WebStory.findOne({ slug });
+    if (existingStory) {
+      return res.status(400).json({ message: 'This Slug (URL) is already taken. Please change it.' });
+    }
+
+    // --- Save to Database ---
     const newStory = new WebStory({ title, slug, coverImage, pages });
     const savedStory = await newStory.save();
+    
+    console.log("✅ Story Created Successfully:", savedStory._id);
     res.status(201).json(savedStory);
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server Error creating story' });
+    console.error("❌ Backend Error Creating Story:", error);
+    // Return the ACTUAL error message to frontend
+    res.status(500).json({ message: error.message || 'Server Error creating story' });
   }
 };
 
-// 4. GET ALL Stories (Admin Manage Page ke liye)
+// 4. GET ALL Stories (Admin Manage Page)
 exports.getAllWebStories = async (req, res) => {
   try {
     const stories = await WebStory.find().sort({ createdAt: -1 });
     res.json(stories);
   } catch (error) {
+    console.error("Error fetching all stories:", error);
     res.status(500).json({ message: 'Error fetching stories' });
   }
 };
@@ -131,6 +153,7 @@ exports.deleteWebStory = async (req, res) => {
     await WebStory.findByIdAndDelete(req.params.id);
     res.json({ message: 'Story deleted successfully' });
   } catch (error) {
+    console.error("Error deleting story:", error);
     res.status(500).json({ message: 'Error deleting story' });
   }
 };
@@ -138,13 +161,21 @@ exports.deleteWebStory = async (req, res) => {
 // 6. UPDATE Story
 exports.updateWebStory = async (req, res) => {
   try {
+    console.log("📥 Updating Story:", req.params.id);
+    
     const updatedStory = await WebStory.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true } // Return updated doc
     );
+
+    if (!updatedStory) {
+        return res.status(404).json({ message: "Story not found to update" });
+    }
+
     res.json(updatedStory);
   } catch (error) {
-    res.status(500).json({ message: 'Error updating story' });
+    console.error("❌ Error updating story:", error);
+    res.status(500).json({ message: error.message || 'Error updating story' });
   }
 };
