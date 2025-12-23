@@ -4377,3 +4377,12 @@
 {"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[36m304\u001b[0m 555.753 ms - -\u001b[0m","timestamp":"2025-12-23T08:10:40.269Z"}
 {"level":"info","message":"\u001b[0mGET /api/force-update-news \u001b[36m304\u001b[0m 4107.662 ms - -\u001b[0m","timestamp":"2025-12-23T08:10:45.115Z"}
 {"level":"info","message":"\u001b[0mGET /favicon.ico \u001b[33m404\u001b[0m 4.084 ms - 150\u001b[0m","timestamp":"2025-12-23T08:10:46.393Z"}
+{"level":"info","message":"Server running on port 5000","timestamp":"2025-12-23T08:40:28.667Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/feed?lang=en \u001b[32m204\u001b[0m 1.334 ms - 0\u001b[0m","timestamp":"2025-12-23T08:40:35.138Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/feed?lang=en \u001b[32m200\u001b[0m 906.735 ms - -\u001b[0m","timestamp":"2025-12-23T08:40:36.053Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/slug/looking-at-rss-through-bjp-lens-a-big-mistake-mohan-bhagwat \u001b[32m204\u001b[0m 0.206 ms - 0\u001b[0m","timestamp":"2025-12-23T08:40:44.332Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/slug/looking-at-rss-through-bjp-lens-a-big-mistake-mohan-bhagwat \u001b[32m200\u001b[0m 133.481 ms - -\u001b[0m","timestamp":"2025-12-23T08:40:44.470Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/top-news?lang=en&exclude=looking-at-rss-through-bjp-lens-a-big-mistake-mohan-bhagwat \u001b[32m204\u001b[0m 0.135 ms - 0\u001b[0m","timestamp":"2025-12-23T08:40:44.475Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/top-news?lang=en&exclude=looking-at-rss-through-bjp-lens-a-big-mistake-mohan-bhagwat \u001b[32m200\u001b[0m 53.462 ms - -\u001b[0m","timestamp":"2025-12-23T08:40:44.537Z"}
+{"level":"info","message":"\u001b[0mOPTIONS /api/articles/related?category=National&slug=looking-at-rss-through-bjp-lens-a-big-mistake-mohan-bhagwat&lang=en&limit=6 \u001b[32m204\u001b[0m 0.178 ms - 0\u001b[0m","timestamp":"2025-12-23T08:40:44.542Z"}
+{"level":"info","message":"\u001b[0mGET /api/articles/related?category=National&slug=looking-at-rss-through-bjp-lens-a-big-mistake-mohan-bhagwat&lang=en&limit=6 \u001b[32m200\u001b[0m 53.316 ms - -\u001b[0m","timestamp":"2025-12-23T08:40:44.602Z"}
